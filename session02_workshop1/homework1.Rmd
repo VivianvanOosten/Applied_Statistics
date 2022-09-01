@@ -46,7 +46,7 @@ library(tidyquant)
 
 [What impact does new housing have on rents, displacement, and gentrification in the surrounding neighborhood? Read our interview with economist Kate Pennington about her article, "Does Building New Housing Cause Displacement?:The Supply and Demand Effects of Construction in San Francisco."](https://matrix.berkeley.edu/research-article/kate-pennington-on-gentrification-and-displacement-in-san-francisco/)
 
-In our case, we have a clean(ish) dataset with about 200K rows tht corresponf to Craigslist listings for renting properties in the greater SF area. The data dictionary is as follows
+In our case, we have a clean(ish) dataset with about 200K rows that corresponds to Craigslist listings for renting properties in the greater SF area. The data dictionary is as follows
 
 | variable    | class     | description           |
 |-------------|-----------|-----------------------|
@@ -80,10 +80,17 @@ rent <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidyt
 What are the variable types? Do they all correspond to what they really are? Which variables have most missing values?
 
 ```{r skim_data}
-# YOUR CODE GOES HERE
 skimr::skim(rent)
+str(rent)
+head(rent)
 
 ```
+
+# my answer
+
+Most column types correspond with what they should be, but date is stored as a double '20050111' instead of a date 2005-01-11. Other column types like number of bedrooms are a double where an integer suffices. We could change this to use less Description has the most missing values, after which address and details follow with also 190000+ missing values.
+
+# end of my answer
 
 Make a plot that shows the top 20 cities in terms of % of classifieds between 2000-2018. You need to calculate the number of listings by city, and then convert that number to a %.
 
@@ -91,7 +98,29 @@ The final graph should look like this![](images/top_cities.png)
 
 ```{r top_cities}
 # YOUR CODE GOES HERE
+top_cities <- rent %>%
+  group_by(city) %>%
+  filter(year < 2019) %>%
+  summarize(total_listings = n()) %>%
+  mutate(percentage = total_listings/sum(total_listings),
+         city = fct_reorder(city, total_listings)) %>%
+  slice_max(total_listings, n=20) 
 
+
+ggplot(top_cities) +
+  aes(x = percentage, y = city) +
+  geom_col() +
+  labs(
+    title = 'San Fransisco accounts for more than a quarter of all rental classifieds',
+    subtitle = '% of Craigslist listings, 2000-2018',
+    x = NULL,
+    y = NULL,
+    caption = 'Source: Pennington, Kate(2018). Bay Area Craigslist Rental Housing Posts, 2000-2018',
+    xticks = 'percentage'
+  ) +
+  scale_x_continuous(labels = scales::percent)+
+  theme_minimal(base_size=16)
+  
 
 ```
 
@@ -103,15 +132,61 @@ Make a plot that shows the evolution of median prices in San Francisco for 0, 1,
 
 # YOUR CODE GOES HERE
 
+sf_rentals <- rent %>%
+  filter(city == 'san francisco',
+         beds < 4) %>% 
+  mutate(beds = factor(beds)) %>%
+  group_by(beds, year) %>%
+  summarise(rent = median(price))
+  
+
+ggplot(sf_rentals) +
+ aes(x = year, y = rent, color = beds) +
+  facet_wrap(vars(beds), nrow = 1) +
+  geom_line() +
+  theme( legend.position = 'none') +
+  labs(
+    title = 'San Francisco rents have been steadily increasing',
+    subtitle = '0 to 3-bed listings, 2000-2018',
+    x = NULL,
+    y = NULL,
+    caption = 'Source: Pennington, Kate(2018). Bay Area Craigslist Rental Housing Posts, 2000-2018',
+  )
+
 
 ```
 
-Finally, make a plot that shows median rental prices for the top 2 cities in the Bay area. Your final graph should look like this
+Finally, make a plot that shows median rental prices for the top 12 cities in the Bay area. Your final graph should look like this
 
 ![](images/one_bed_bay_area.png)
 
 ```{r spirit_plot}
-# YOUR CODE GOES HERE
+
+top12_cities <- rent %>%
+  filter(beds == 1) %>%
+  group_by(city) %>%
+  summarize(total_listings = n()) %>%
+  slice_max(total_listings, n=12)
+
+top12_cities <- top12_cities$city
+
+one_bed_bay_area <- rent %>%
+  filter(beds == 1,
+         city %in% top12_cities) %>%
+  group_by(city, year) %>%
+  summarize(rent = median(price))
+
+ggplot(one_bed_bay_area) +
+  aes(x = year, y = rent, colour = city) +
+  facet_wrap(vars(city)) +
+  geom_line() +
+  theme( legend.position = 'none') +
+  labs(
+    title = 'Rental prices for 1-bedroom flats in the Bay Area',
+    x = NULL,
+    y = NULL,
+    caption = 'Source: Pennington, Kate(2018). Bay Area Craigslist Rental Housing Posts, 2000-2018',
+  )
 
 ```
 
@@ -282,7 +357,7 @@ spotify_songs <- readr::read_csv('https://raw.githubusercontent.com/rfordatascie
 The data dictionary can be found below
 
 | **variable**             | **class** | **description**                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-|-------------|-------------|-----------------------------------------------|
+|---------------|---------------|------------------------------------------|
 | track_id                 | character | Song unique ID                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | track_name               | character | Song Name                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | track_artist             | character | Song Artist                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
