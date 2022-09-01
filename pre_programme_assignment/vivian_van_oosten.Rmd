@@ -1,7 +1,7 @@
 ---
 title: 'MAM 2023 Pre-programme Assignment'
-author: "YOUR NAME HERE"
-date: "DATE HERE"
+author: "Vivian van Oosten"
+date: "27/08/2022"
 output:
   html_document:
     theme: flatly
@@ -19,51 +19,19 @@ library(janitor)
 
 The goal is to test your software installation, to demonstrate competency in Markdown, and in the basics of `ggplot`.
 
-# R and RStudio installation
-
-You should successfully install R and R studio in your computer. We will do all of our work in this class with the open source (and free!) programming language [R](https://cran.r-project.org/). However, we will use [RStudio](https://www.rstudio.com/) as the main program to access R.
-
-You can find details on how to [install both R and R studio here](https://mam2023.netlify.app/reference/01-reference/)
-
-## Install `tidyverse`, `gapminder` and `here` packages
-
-A clean installation of R is known as **base R**. We need to install a couple of packages, namely `tidyverse`, `gapminder`, and `here`. Go to the packages panel in the bottom right of RStudio, click on "Install," type `tidyverse`, and press enter. You'll see a bunch of output in the RStudio console as all the packages are installed and, depending on the speed of your computer, this may take a while. Once installation of tidyverse finishes, install `gapminder` and `here`.
-
-You can also just paste and run these commands
-
--   `install.packages("tidyverse")`
--   `install.packages("gapminder")`
--   `install.packages("here")`
-
-in the `console` (bottom left in RStudio) instead of using the packages panel.
-
-You can find details on [installing the tidyverse here](https://mam2023.netlify.app/reference/02-reference)
-
-## Practice using Markdown
-
-Written assignments will be submitted using [Markdown](https://daringfireball.net/projects/markdown/). Markdown is a lightweight text formatting language that easily converts between file formats. It is integrated directly into [R Markdown](http://rmarkdown.rstudio.com/), which combines R code, output, and written text into a single document (`.Rmd`).
-
-There is a very nice [Markdwown tutorial](https://commonmark.org/help/tutorial/) that I suggest you go through before working on your assignment. If you want to use a stand-alone Markdown editor [Typora](https://typora.io/) is a lightweight Markdown editor that inherently supports pandoc-flavored Markdown.
-
-## Pandoc
-
-[Pandoc](http://pandoc.org)is a program that converts Markdown files into basically anything else. It was created by [John MacFarlane](https://johnmacfarlane.net), a philosophy professor at the University of California, Berkeley and is widely used as a writing tool and as a basis for publishing workflow. Kieran Healy's [Plain Text Social Science workflow](http://plain-text.co) describes how to use Markdown and then convert your Markdown document to HTML, PDF, word, etc.
-
-You should create a file whose name will be `your_name.Rmd`, so if I were submitting, my file would be called `Kostis_Christodoulou.Rmd`
-
 # Task 1: Short biography written using markdown
 
-You should write within this Rmd file a brief biography of yourself using markdown syntax. I know you have already achieved a lot, but a couple of paragraphs is more than enough.
+My name is Vivian, see a picture of me below for reference. Most recently, I worked at [Oliver Wyman](https://www.oliverwyman.com/nl.html) as a *consultant*, which involved a surprising amount of powerpoint slides. My background in *data science* and *mathematics* was not useful, except when it came to the creation of graphs to put in those slides. In the future, I hope to work somewhere more data-based, which is why I'm in this program.
 
-To achieve full marks, you should include at least 4 of the following elements:
+I attended University College Utrecht, where I majored in *economics* and *mathematics*. Some of my favorite academic-related moments are with the economics book club, where we for example talked about crypto- and altnerative currencies with the founder of the Utrecht Euro. My internship with [Stater](https://stater.nl/en/) was another highlight to apply my theoretical knowledge in practice.
 
--   Headers
--   Emphasis (italics or bold)
--   Lists
--   Links
--   Embedding images
+In my spare time, I love to read. My favorites are fantasy books, as they provide an escape from reality. Find below a list of my absolute favorite authors, all of whom wrote many books within the same fantasy world.
 
-> Please delete all the intro text I wrote from line 22 to line 69 and start writing your short biography after this blockquote.
+-   Robin Hobb - all of her work
+-   Anne McCaffrey - the Pern novels
+-   Raymond E. Feist - everything related to Midkemia
+
+![](images/IMG_0019%206.JPG){width="213"}
 
 # Task 2: `gapminder` country comparison
 
@@ -82,7 +50,7 @@ I have created the `country_data` and `continent_data` with the code below.
 
 ```{r}
 country_data <- gapminder %>% 
-            filter(country == "Greece") # just choosing Greece, as this is where I come from
+            filter(country == "Netherlands") 
 
 continent_data <- gapminder %>% 
             filter(continent == "Europe")
@@ -91,50 +59,53 @@ continent_data <- gapminder %>%
 First, create a plot of life expectancy over time for the single country you chose. Map `year` on the x-axis, and `lifeExp` on the y-axis. You should also use `geom_point()` to see the actual data points and `geom_smooth(se = FALSE)` to plot the underlying trendlines. You need to remove the comments **\#** from the lines below for your code to run.
 
 ```{r, lifeExp_one_country}
-# plot1 <- ggplot(data = ??, mapping = aes(x = ??, y = ??))+
-#   geom_??() +
-#   geom_smooth(se = FALSE)+
-#   NULL 
+plot1 <- ggplot(data = country_data, mapping = aes(x = year, y = lifeExp))+
+  geom_point() +
+  geom_smooth(se = FALSE)+
+  NULL
 
-# plot1
+plot1
 ```
 
 Next we need to add a title. Create a new plot, or extend plot1, using the `labs()` function to add an informative title to the plot.
 
 ```{r, lifeExp_one_country_with_label}
-# plot1<- plot1 +
-#   labs(title = " ",
-#       x = " ",
-#       y = " ") +
-#   NULL
+plot1<- plot1 +
+  labs(title = "Life Expectancy in the Netherlands",
+      x = "Year",
+      y = "Life Expectancy") +
+  NULL
 
 
-# plot1
+plot1
 ```
 
 Secondly, produce a plot for all countries in the *continent* you come from. (Hint: map the `country` variable to the colour aesthetic. You also want to map `country` to the `group` aesthetic, so all points for each country are grouped together).
 
 ```{r lifeExp_one_continent}
-# ggplot(gapminder, mapping = aes(x =  , y =  , colour= , group =))+
-#   geom_?? + 
-#   geom_smooth(se = FALSE) +
-#   NULL
+ggplot(continent_data, mapping = aes(x = year , y =  lifeExp, colour= country, group = country))+
+  geom_point() +
+  geom_smooth(se = FALSE) +
+  NULL
 ```
 
 Finally, using the original `gapminder` data, produce a life expectancy over time graph, grouped (or faceted) by continent. We will remove all legends, adding the `theme(legend.position="none")` in the end of our ggplot.
 
 ```{r lifeExp_facet_by_continent}
-# ggplot(data = gapminder , mapping = aes(x =  , y =  , colour= ))+
-#   geom_??? + 
-#   geom_smooth(se = FALSE) +
-#   facet_wrap(~continent) +
-#   theme(legend.position="none") + #remove all legends
-#   NULL
+ggplot(data = gapminder , mapping = aes(x = year , y = lifeExp , colour= continent))+
+  geom_point() +
+  geom_smooth(se = FALSE) +
+  facet_wrap(~continent) +
+  theme(legend.position="none") + #remove all legends
+  NULL
 ```
 
 Given these trends, what can you say about life expectancy since 1952? Again, don't just say what's happening in the graph. Tell some sort of story and speculate about the differences in the patterns.
 
 > Type your answer after this blockquote.
+
+Life expectancy in general has gone up, indicating an improvement in living conditions across the world, including but not limited to access to clean water, health care and food.
+A notable exception is Africa, where life expectancy has stagnated since 1990. The improvements in living conditions made elsewhere are not being transferred to Africa generally. Potentially, drought, famine and war could be the cause of this, which has affected other continents to a lesser extent. This has kept back the industrialisation and further development of Africa, while Asia, which started from a similar life expectancy, has made much larger improvements in both development and life expectancy. 
 
 # Task 3: Brexit vote analysis
 
@@ -159,17 +130,35 @@ To get a sense of the spread, or distribution, of the data, we can plot a histog
 
 # histogram
 ggplot(brexit_results, aes(x = leave_share)) +
-  geom_histogram(binwidth = 2.5)
+  geom_histogram(binwidth = 2.5) +
+  labs(
+    title = "The Brexit vote",
+    subtitle = "Distribution of UK constituencies and their vote to leave the EU",
+    x = 'Share of vote to leave the EU',
+    y = 'Count'
+  )
 
 # density plot-- think smoothed histogram
 ggplot(brexit_results, aes(x = leave_share)) +
-  geom_density()
+  geom_density()+
+  labs(
+    title = "The Brexit vote",
+    subtitle = "Distribution of UK constituencies and their vote to leave the EU",
+    x = 'Share of vote to leave the EU',
+    y = 'Density'
+  )
 
 
 # The empirical cumulative distribution function (ECDF) 
 ggplot(brexit_results, aes(x = leave_share)) +
   stat_ecdf(geom = "step", pad = FALSE) +
-  scale_y_continuous(labels = scales::percent)
+  scale_y_continuous(labels = scales::percent)+
+  labs(
+    title = "The Brexit vote",
+    subtitle = "Distribution of UK constituencies and their vote to leave the EU",
+    x = 'Share of vote to leave the EU',
+    y = 'Cumulative distribution'
+  )
   
 
 
@@ -196,7 +185,13 @@ ggplot(brexit_results, aes(x = born_in_uk, y = leave_share)) +
   
   # use a white background and frame the plot with a black box
   theme_bw() +
-  NULL
+  
+  labs(
+    title = "Brexit - immigrants and their opinion",
+    subtitle = "Showing all UK constituencies, their share of people born in the UK and their vote to leave the EU",
+    x = 'Share of people born in the  UK',
+    y = 'Share of vote to leave the EU'
+  )
 ```
 
 You have the code for the plots, I would like you to revisit all of them and use the `labs()` function to add an informative title, subtitle, and axes titles to all plots.
@@ -204,6 +199,8 @@ You have the code for the plots, I would like you to revisit all of them and use
 What can you say about the relationship shown above? Again, don't just say what's happening in the graph. Tell some sort of story and speculate about the differences in the patterns.
 
 > Type your answer after, and outside, this blockquote.
+
+While it is visually not a strong relationship, statistically constituencies with a larger share of people born in the UK have a larger share of people voting to leave the EU. There could be several explanations for this fact. One of them, is that immigrants are more likely to support staying in the EU, considering that many of them likely come from the EU or at least see the value of freeer movement of people and goods. Another explanation, is that those UK-born people living with more immigrants also see that they are not only out to steal their jobs, but are regular people, living, working and paying their taxes. Considering that recent immigrants are not allowed to vote, not all people not born in the UK are from the EU, and not all people vote in general, a combination of the two explanations is likely at work.
 
 # Task 4: Animal rescue incidents attended by the London Fire Brigade
 
@@ -213,15 +210,15 @@ Please note that any cost included is a notional cost calculated based on the le
 
 ```{r load_animal_rescue_data, warning=FALSE, message=FALSE}
 
-url <- "https://data.london.gov.uk/download/animal-rescue-incidents-attended-by-lfb/8a7d91c2-9aec-4bde-937a-3998f4717cd8/Animal%20Rescue%20incidents%20attended%20by%20LFB%20from%20Jan%202009.csv"
+url <- "https://data.london.gov.uk/download/animal-rescue-incidents-attended-by-lfb/f43b485e-fb35-419c-aa7a-fa75676e5835/Animal%20Rescue%20incidents%20attended%20by%20LFB%20from%20Jan%202009.csv"
 
-animal_rescue <- read_csv(url,
-                          locale = locale(encoding = "CP1252")) %>% 
+animal_rescue <- read_csv(url, locale = locale(encoding = "CP1252")) %>% 
   janitor::clean_names()
 
 
 glimpse(animal_rescue)
 ```
+
 One of the more useful things one can do with any data set is quick counts, namely to see how many observations fall within one category. For instance, if we wanted to count the number of incidents by year, we would either use `group_by()... summarise()` or, simply [`count()`](https://dplyr.tidyverse.org/reference/count.html)
 
 ```{r, instances_by_calendar_year}
@@ -263,7 +260,7 @@ animal_rescue %>%
 
 ```
 
-Do you see anything strange in these tables? 
+Do you see anything strange in these tables?
 
 Finally, let us have a loot at the notional cost for rescuing each of these animals. As the LFB says,
 
@@ -271,9 +268,8 @@ Finally, let us have a loot at the notional cost for rescuing each of these anim
 
 There is two things we will do:
 
-1. Calculate the mean and median `incident_notional_cost` for each `animal_group_parent`
-2. Plot a boxplot to get a feel for the distribution of `incident_notional_cost` by `animal_group_parent`.
-
+1.  Calculate the mean and median `incident_notional_cost` for each `animal_group_parent`
+2.  Plot a boxplot to get a feel for the distribution of `incident_notional_cost` by `animal_group_parent`.
 
 Before we go on, however, we need to fix `incident_notional_cost` as it is stored as a `chr`, or character, rather than a number.
 
@@ -293,15 +289,14 @@ typeof(animal_rescue$incident_notional_cost)
 
 ```
 
-Now that incident_notional_cost is numeric, let us quickly calculate summary statistics for each animal group. 
-
+Now that incident_notional_cost is numeric, let us quickly calculate summary statistics for each animal group.
 
 ```{r, stats_on_incident_cost,message=FALSE, warning=FALSE}
 
 animal_rescue %>% 
   
   # group by animal_group_parent
-  group_by(???) %>% 
+  group_by(animal_group_parent) %>% 
   
   # filter resulting data, so each group has at least 6 observations
   filter(n()>6) %>% 
@@ -316,14 +311,13 @@ animal_rescue %>%
             count = n()) %>% 
   
   # sort the resulting data in descending order. You choose whether to sort by count or mean cost.
-  arrange(????)
+  arrange(desc(mean_incident_cost))
 
 ```
 
+Compare the mean and the median for each animal group. What do you think this is telling us? Anything else that stands out? Any outliers?
 
-
-Compare the mean and the median for each animal group. waht do you think this is telling us?
-Anything else that stands out? Any outliers?
+The mean and the median move in sync in general, with higher means having higher medians as well. Some exceptions are the horse and the unknown - heavy livestock animal types, which have a high mean  but a much lower (relatively) median. This means that we had some high outliers in cost, driving up the mean cost. The squirrel, rabbit and ferret have the opposite, where the median cost is higher than the mean incident cost. This difference could be due to the value people place in the animal. Horses and heavy livestock are worth a lot more than squirrels, rabbit and ferrets, causing the owners to urge the fire brigade to go above and beyond. Another related reason is the size of the animal, smaller animals cost less manpower, machines and time to rescue usually than larger animals.
 
 Finally, let us plot a few plots that show the distribution of incident_cost for each animal group.
 
@@ -349,6 +343,8 @@ base_plot + stat_ecdf(geom = "step", pad = FALSE) +
 
 Which of these four graphs do you think best communicates the variability of the `incident_notional_cost` values? Also, can you please tell some sort of story (which animals are more expensive to rescue than others, the spread of values) and speculate about the differences in the patterns.
 
+An issue with all of the graphs is that the x axis of notional cost does not match across the different graphs, making direct comparisons much harder. We are now more likely to compare the relative spread and variability rather than directly compare the cost of rescuing each animal type.
+In my opinion, the density plot best communicates the variability. The bar plot communicates a definitiveness that does not exist, this spread of values is only a limited timeframe and thus this variability does not have to stay fixed. The density plot is intuitive to understand, showing where there's more animals and where there's less, even if it makes some generalisations on the pattern. The box plot is a good alternative, but for especially small distributions it is harder to understand, with a line at 1 point and dots at others. The final cumulative plot is not intuitive, as the it is not mentioned clearly that it is cumulative and that is not something that is used often. It is also visually more difficult to interpret a cumulative height difference compared to an absolute height, so the density plot would be better.
 
 # Submit the assignment
 
@@ -358,6 +354,6 @@ Knit the completed R Markdown file as an HTML document (use the "Knit" button at
 
 If you want to, please answer the following
 
--   Who did you collaborate with: TYPE NAMES HERE
--   Approximately how much time did you spend on this problem set: ANSWER HERE
--   What, if anything, gave you the most trouble: ANSWER HERE
+-   Who did you collaborate with: No one
+-   Approximately how much time did you spend on this problem set: roughly an hour
+-   What, if anything, gave you the most trouble: Looking for an interesting interpretation.
