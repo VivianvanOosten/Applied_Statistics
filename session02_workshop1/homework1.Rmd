@@ -194,6 +194,8 @@ What can you infer from these plots? Don't just explain what's in the graph, but
 
 > TYPE YOUR ANSWER AFTER (AND OUTSIDE!) THIS BLOCKQUOTE.
 
+We can clearly spot the financial crisis happening in 2008, when all the prices are going down across the cities and types of bedrooms in San Francisco. The effect is the smallest in Santa Rosa and Oakland, where we also don't see an increase ahead of the recession, so a limited decrease is not unsurprising. The effect is the greatest where the increase is also the greatest, for example a three-bedroom in San Francisco or Santa Clara. 
+
 # Analysis of movies- IMDB dataset
 
 We will look at a subset sample of movies, taken from the [Kaggle IMDB 5000 movie dataset](https://www.kaggle.com/carolzhangdc/imdb-5000-movie-dataset)
@@ -221,6 +223,13 @@ Besides the obvious variables of `title`, `genre`, `director`, `year`, and `dura
 -   Produce a table with the average gross earning and budget (`gross` and `budget`) by genre. Calculate a variable `return_on_budget` which shows how many \$ did a movie make at the box office for each \$ of its budget. Ranked genres by this `return_on_budget` in descending order
 -   Produce a table that shows the top 15 directors who have created the highest gross revenue in the box office. Don't just show the total gross amount, but also the mean, median, and standard deviation per director.
 -   Finally, ratings. Produce a table that describes how ratings are distributed by genre. We don't want just the mean, but also, min, max, median, SD and some kind of a histogram or density graph that visually shows how ratings are distributed.
+
+```{r}
+skim(movies) # there are no missing values. 
+movies %>%
+  drop_duplicates()
+```
+
 
 ## Use `ggplot` to answer the following
 
@@ -350,8 +359,6 @@ If you do not want to use the API, you can download a sample of over 32K songs b
 ```{r, download_spotify_data}
 
 spotify_songs <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-01-21/spotify_songs.csv')
-
-
 ```
 
 The data dictionary can be found below
@@ -391,6 +398,108 @@ Produce a one-page summary describing this dataset. Here is a non-exhaustive lis
 3.  How are `job_satisfaction` and `work_life_balance` distributed? Don't just report counts, but express categories as % of total
 4.  Is there any relationship between `valence` and `track_popularity`? `danceability` and `track_popularity` ?
 5.  `mode` indicates the modality (major or minor) of a track, the type of scale from which its melodic content is derived. Major is represented by 1 and minor is 0. Do songs written on a major scale have higher `danceability` compared to those in minor scale? What about `track_popularity`?
+
+```{r}
+ggplot(spotify_songs) +
+  aes(x = track_popularity) +
+  geom_histogram()
+```
+
+The track popularity seems to be a roughly normal distribution, with a lot of tracks with close to 0 popularity that do not fit with the distribution. This can be explained by a lot of small artists posting their own songs that not many people listen to, like someone creating a new podcast in their garage. Like in the music industry in general, not everyone makes it.
+
+2.  There are 12 [audio features](https://developer.spotify.com/documentation/web-api/reference/object-model/#audio-features-object) for each track, including confidence measures like `acousticness`, `liveness`, `speechines`and `instrumentalness`, perceptual measures like
+`energy`, `loudness`, `danceability` and `valence` (positiveness), and descriptors like `duration`, `tempo`, `key`, and `mode`. How are they distributed? can you roughly guess which of these variables is closer to Normal just by looking at summary statistics?
+
+
+```{r}
+skim(spotify_songs) # seeing if we can determine whether the audio features look like a normal distribution
+
+ggplot(spotify_songs) +
+  aes(x = acousticness) +
+  geom_histogram()
+# acousticness looks like an exponential distribution, with most songs not having any acousticness at all.
+
+ggplot(spotify_songs) +
+  aes(x = liveness) +
+  geom_histogram()
+#Liveness is skewed right. Most songs have some liveness, but a few have a lot.
+
+ggplot(spotify_songs) +
+  aes(x = speechiness) +
+  geom_histogram()
+#Speechiness is an exponential distribution, similar to acousticness. Speechiness, however, has very few songs with exactly 0 speechiness.
+
+ggplot(spotify_songs) +
+  aes(x = instrumentalness) +
+  geom_histogram()
+#Instrumentalness is skewed right. The vast majority of songs have a 0 instrumentalness, but there's another small bump around 0.8 where some songs have a lot of instrumentalness.
+
+ggplot(spotify_songs) +
+  aes(x = energy) +
+  geom_histogram()
+#Energy looks like a normal distribution, with a mean around 0.75. However, it is cut off at 1 so it is not a normal distribution.
+
+ggplot(spotify_songs) +
+  aes(x = loudness) +
+  geom_histogram()
+#Loudness looks like a normal distribution with a very small standard deviation, though it is slightly skewed left. 
+
+ggplot(spotify_songs) +
+  aes(x = danceability) +
+  geom_histogram()
+#Danceability looks like a normal distribution, slightly skewed left.
+
+ggplot(spotify_songs) +
+  aes(x = valence) +
+  geom_histogram()
+#Valence looks like a normal distribution that's cut off at 0 and 1.
+
+ggplot(spotify_songs) +
+  aes(x = tempo) +
+  geom_histogram()
+#Tempo looks like a bimodal noraml distribution, with the 2 peaks being 2 means. 
+
+ggplot(spotify_songs) +
+  aes(x = duration_ms) +
+  geom_histogram()
+#Duration appears as a normal distribution with a skew to the right.
+
+ggplot(spotify_songs) +
+  aes(x = key) +
+  geom_histogram()
+# The key does not have values everywhere on the scale, it looks like only whole numbers are possible on the key. 
+
+ggplot(spotify_songs) +
+  aes(x = mode) +
+  geom_histogram()
+#  Mode only includes 0 or 1, nothing else.
+```
+
+
+3.  How are `job_satisfaction` and `work_life_balance` distributed? Don't just report counts, but express categories as % of total
+4.  Is there any relationship between `valence` and `track_popularity`? `danceability` and `track_popularity` ?
+
+```{r}
+ggplot(spotify_songs) +
+  aes(valence, track_popularity) +
+  geom_point() +
+  geom_smooth()
+cor(spotify_songs$valence, spotify_songs$track_popularity)
+# track popularity and valence do not appear to have a clear relationship, the values for both are spread out across the scatter plot and the correlation coefficient is very low.
+```
+```{r}
+ggplot(spotify_songs) +
+  aes(danceability, track_popularity) +
+  geom_point() +
+  geom_smooth()
+cor(spotify_songs$danceability, spotify_songs$track_popularity)
+# The correlation coefficient is again very low, but a much higher danceability is associated with a higher popularity. 
+```
+
+
+5.  `mode` indicates the modality (major or minor) of a track, the type of scale from which its melodic content is derived. Major is represented by 1 and minor is 0. Do songs written on a major scale have higher `danceability` compared to those in minor scale? What about `track_popularity`?
+
+
 
 # Challenge 1: Replicating a chart
 
