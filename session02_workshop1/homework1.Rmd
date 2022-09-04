@@ -97,7 +97,7 @@ The final graph should look like this![](images/top_cities.png)
 
 ```{r top_cities}
 # YOUR CODE GOES HERE
-top_cities <- rent %>%
+top_20_cities <- rent %>%
   group_by(city) %>%
   filter(year < 2019) %>%
   summarize(total_listings = n()) %>%
@@ -106,7 +106,7 @@ top_cities <- rent %>%
   slice_max(total_listings, n=20) 
 
 
-ggplot(top_cities) +
+ggplot(top_20_cities) +
   aes(x = percentage, y = city) +
   geom_col() +
   labs(
@@ -224,9 +224,7 @@ Besides the obvious variables of `title`, `genre`, `director`, `year`, and `dura
 -   Finally, ratings. Produce a table that describes how ratings are distributed by genre. We don't want just the mean, but also, min, max, median, SD and some kind of a histogram or density graph that visually shows how ratings are distributed.
 
 ```{r}
-skim(movies) # there are no missing values. 
-movies %>%
-  drop_duplicates()
+
 ```
 
 
@@ -548,6 +546,30 @@ You have to create a graph that calculates the cumulative % change for 0-, 1-, a
 
 ![](images/challenge1.png)
 
+```{r}
+rent_cum_change <- rent %>%
+  filter(beds < 3,
+         city %in% top12_cities) %>%
+  group_by(beds, city, year) %>%
+  summarize(med_rent = median(price)) %>% 
+  mutate(pct_change = (med_rent/lag(med_rent) - 1) * 100,
+         pct_change = replace_na(pct_change, 0),
+         cum_change = lag(pct_change) + pct_change + 100)
+
+# currenlty literally cumulative percentage change but that's not what the graph that kostis shared shows
+# to be fixed
+
+head(rent_cum_change)
+
+```
+```{r}
+ggplot(rent_cum_change) +
+  aes(x = year, y = cum_change, color = city) +
+  geom_line() + 
+  facet_grid( beds ~ city )
+```
+
+
 # Challenge 2: 2016 California Contributors plots
 
 As discussed in class, I would like you to reproduce the plot that shows the top ten cities in highest amounts raised in political contributions in California during the 2016 US Presidential election.
@@ -563,11 +585,63 @@ The easiest way would be to create two plots and then place one next to each oth
 While this is ok, what if one asked you to create the same plot for the top 10 candidates and not just the top two? The most challenging part is how to reorder within categories, and for this you will find Julia Silge's post on [REORDERING AND FACETTING FOR GGPLOT2](https://juliasilge.com/blog/reorder-within/) useful.
 
 ```{r, load_CA_data, warnings= FALSE, message=FALSE}
+library(tidytext)
 # Make sure you use vroom() as it is significantly faster than read.csv()
 CA_contributors_2016 <- vroom::vroom(here::here("data","CA_contributors_2016.csv"))
-
+zipcodes <- vroom::vroom(here::here("data","zip_code_database.csv"))
 
 ```
+
+```{r}
+head(CA_contributors_2016)
+head(zipcodes)
+# inspecting the dataframes to find out what the columns look like & how to join them later
+```
+
+```{r}
+# preparing zipcodes dataset for merging --> change type of zip-column to double
+zipcodes <- zipcodes %>%
+  mutate(zip = as.double(zip)) %>%
+  select(zip, primary_city) #selecting only relevant columns
+
+# combining the 2 datasets by zip code
+contributors_by_city <- left_join(CA_contributors_2016, zipcodes, by = 'zip')
+
+#taking a look to see if the join was successful
+head(contributors_by_city)
+```
+```{r}
+candidates <- c('Trump, Donald J.', 'Clinton, Hillary Rodham')
+
+total_contb_by_city <- contributors_by_city %>%
+  group_by(cand_nm, primary_city) %>%
+  summarize(total_contr = sum(contb_receipt_amt)) %>% 
+  ungroup %>% group_by(cand_nm) %>% top_n(10) %>%
+  ungroup
+
+total_contb_by_city
+
+```
+
+```{r}
+total_contb_by_city %>% 
+  filter(cand_nm %in% candidates) %>% # selecting relevant candidates
+  # ordering the values by size of contribution
+  mutate(cand_nm = as.factor(cand_nm),
+        primary_city = reorder_within(primary_city, total_contr, cand_nm)) %>%
+  ggplot() + # plotting the graph
+  aes(primary_city, total_contr, fill = cand_nm) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~cand_nm, scales = 'free') +
+  coord_flip() +
+  scale_x_reordered() +
+  labs(x = NULL,
+         y = "Amount raised",
+         title = "Where did candidates raise the most money") +
+  scale_y_continuous(labels = scales::dollar_format())
+  
+```
+
 
 # Deliverables
 
