@@ -344,18 +344,14 @@ ggplot(movies) +
 
 # Returns of financial stocks
 
-> You may find useful the material on [finance data sources](https://mam2023.netlify.app/reference/finance_data/).
-
-We will use the `tidyquant` package to download historical data of stock prices, calculate returns, and examine the distribution of returns.
-
-We must first identify which stocks we want to download data for, and for this we must know their ticker symbol; Apple is known as AAPL, Microsoft as MSFT, McDonald's as MCD, etc. The file `nyse.csv` contains 508 stocks listed on the NYSE, their ticker `symbol`, `name`, the IPO (Initial Public Offering) year, and the sector and industry the company is in.
+Before we can analyse the returns of stocks, we decide which companies we want to analyse.
 
 ```{r load_nyse_data, message=FALSE, warning=FALSE}
 nyse <- read_csv(here::here("data","nyse.csv"))
 glimpse(nyse)
 ```
 
-Based on this dataset, create a table and a bar plot that shows the number of companies per sector, in descending order
+Based on this dataset, we are showing the number of companies per sector.
 
 ```{r companies_per_sector}
 comp_per_sector <- nyse %>% 
@@ -389,10 +385,10 @@ nyse
 
 ```
 
-Next, let's choose some stocks and their ticker symbols and download some data. You **MUST** choose 6 different stocks from the ones listed below; You should, however, add `SPY` which is the SP500 ETF (Exchange Traded Fund).
+We are choosing some stocks and downloading their ticker data to analyse. 
 
 ```{r get_price_data, message=FALSE, warning=FALSE, cache=TRUE}
-# Notice the cache=TRUE argument inthe chunk options. Because getting data is time consuming, 
+# Notice the cache=TRUE argument in the chunk options. Because getting data is time consuming, 
 # cache=TRUE means that once it downloads data, the chunk will not run again next time you knit your Rmd
 
 myStocks <- c("MMM","ABT","ACN","ANTM","AGR","TSLA","SPY" ) %>%
@@ -436,8 +432,10 @@ myStocks_returns_annual <- myStocks %>%
                cols = c(nested.col))
 ```
 
-Create a table where you summarise monthly returns for each of the stocks and `SPY`; min, max, median, mean, SD.
-###Summary Statistics For Monthly Returns
+
+
+### Summary Statistics For Monthly Returns
+
 ```{r summarise_monthly_returns}
 summary_monthly_returns <- myStocks_returns_monthly %>% 
   
@@ -453,7 +451,8 @@ summary_monthly_returns <- myStocks_returns_monthly %>%
 summary_monthly_returns
 ```
 
-Plot a density plot, using `geom_density()`, for each of the stocks
+
+To analyse the distribution of the returns, we plot a density plot for each of the stocks.
 
 ```{r density_monthly_returns}
 myStocks_returns_monthly %>% 
@@ -479,11 +478,9 @@ myStocks_returns_monthly %>%
 ```
 
 
-What can you infer from this plot? Which stock is the riskiest? The least risky?
+The graph shows that TSLA has the widest spread, suggesting it has the greatest deviation from the mean and thus is the most risky stock. The remaining stocks have a similar spread, we need further analysis to come to a concrete conclusion to determine which stock is the least risky.
 
-> The graph shows that TSLA has the widest spread, suggesting it has the greatest deviation from the mean and thus is the most risky stock. The remaining stocks have a similar spread, we need further analysis to come to a concrete conclusion to determine which stock is the least risky.
-
-Finally, make a plot that shows the expected monthly return (mean) of a stock on the Y axis and the risk (standard deviation) in the X-axis. Please use `ggrepel::geom_text_repel()` to label each stock
+Finally we made a plot to show the expected monthly return per stock. 
 
 ```{r risk_return_plot}
   summary_monthly_returns %>% 
@@ -506,9 +503,9 @@ Finally, make a plot that shows the expected monthly return (mean) of a stock on
 
 ```
 
-What can you infer from this plot? Are there any stocks which, while being riskier, do not have a higher expected return?
+According to our analysis, TSLA stock is the most risky stock with fluctuations around 5%. It also offers the highest return with an expected monthly return of 16%. On the other hand MMM provides the least risk with fluctations less than 1% and also offers a relatively high retrun, which is above 4%.
 
->  According to our analysis, TSLA stock is the most risky stock with fluctuations around 5%. It also offers the highest return with an expected monthly return of 16%. On the other hand MMM provides the least risk with fluctations less than 1% and also offers a relatively high retrun, which is above 4%.
+
 # On your own: Spotify
 
 We have downloaded a large dataset on spotify songs and are going to analyse what makes a track popular.
@@ -563,9 +560,8 @@ ggplot(spotify_songs) +
 
 The track popularity seems to be a roughly normal distribution, with a lot of tracks with close to 0 popularity that do not fit with the distribution. This can be explained by a lot of small artists posting their own songs that not many people listen to, like someone creating a new podcast in their garage. Like in the music industry in general, not everyone makes it.
 
-2.  There are 12 [audio features](https://developer.spotify.com/documentation/web-api/reference/object-model/#audio-features-object) for each track, including confidence measures like `acousticness`, `liveness`, `speechines`and `instrumentalness`, perceptual measures like
-`energy`, `loudness`, `danceability` and `valence` (positiveness), and descriptors like `duration`, `tempo`, `key`, and `mode`. How are they distributed? can you roughly guess which of these variables is closer to Normal just by looking at summary statistics?
 
+To start determining why some songs are more popular than others, we first show the distribution and summary statistics of the variables. We will try to see if we can determine whether the features look like a normal distribution.
 
 ```{r}
 skim(spotify_songs) # seeing if we can determine whether the audio features look like a normal distribution
@@ -716,7 +712,8 @@ ggplot(spotify_songs) +
 ```
 
 
-4.  Is there any relationship between `valence` and `track_popularity`? `danceability` and `track_popularity` ?
+We choose valence and danceability to start analysing what determines the track popularity. 
+
 
 ```{r}
 ggplot(spotify_songs) +
@@ -732,9 +729,9 @@ ggplot(spotify_songs) +
   )
 
 cor(spotify_songs$valence, spotify_songs$track_popularity)
-# track popularity and valence do not appear to have a clear relationship, the values for both are spread out across the scatter plot and the correlation coefficient is very low.
 ```
 
+Track popularity and valence do not appear to have a clear relationship, the values for both are spread out across the scatter plot and the correlation coefficient is very low.
 
 
 ```{r}
@@ -751,11 +748,11 @@ ggplot(spotify_songs) +
   )
 
 cor(spotify_songs$danceability, spotify_songs$track_popularity)
-# The correlation coefficient is again very low, but a much higher danceability is associated with a slightly higher popularity. 
 ```
 
+The correlation coefficient is again very low, but a much higher danceability is associated with a slightly higher popularity. It seems that both of these tracks do not do much to predict the popularity of songs.
 
-5.  `mode` indicates the modality (major or minor) of a track, the type of scale from which its melodic content is derived. Major is represented by 1 and minor is 0. Do songs written on a major scale have higher `danceability` compared to those in minor scale? What about `track_popularity`?
+Next we determine whether the modality matters for the danceability and track popularity.
 
 ```{r}
 mode_analysis <- spotify_songs %>%
@@ -787,10 +784,10 @@ ggplot() +
 
 mode1 <- filter(spotify_songs, mode == 1)
 mode0 <- filter(spotify_songs, mode == 0)
-  
-# There appears to be no significant difference in danceability between major and minor modes, as the mean appears in the same in both graphs and the spread does not appear different.
+
 ```
 
+There appears to be no significant difference in danceability between major and minor modes, as the mean appears in the same in both graphs and the spread does not appear different.
 
 ```{r}
 
@@ -809,18 +806,14 @@ ggplot() +
 
 mode1 <- filter(spotify_songs, mode == 1)
 mode0 <- filter(spotify_songs, mode == 0)
-  
-# There appears to be no significant difference in track_popularity between major and minor modes.
+
 ```
 
+There appears to be no significant difference in track_popularity between major and minor modes. Based on these analyses, we cannot yet decide what audio features determine the popularity of songs.
 
 # Challenge 1: Replicating a chart
 
-The purpose of this exercise is to reproduce a plot using your `dplyr` and `ggplot2` skills. It builds on exercise 1, the San Francisco rentals data.
-
-You have to create a graph that calculates the cumulative % change in median rental prices for 0-, 1-, and 2-bed flats between 2000 and 2018 for the top twelve cities in Bay Area, by number of ads that appeared in Craigslist. Your final graph should look like this
-
-![](images/challenge1.png)
+We have created a graph to show the cumulative % change in median rental prices for 0-, 1-, and 2-bed flats between 2000 and 2018 for the top twelve cities in Bay Area.
 
 ```{r}
 base_years <- rent %>%
@@ -836,13 +829,6 @@ rent_cum_change <- rent %>%
   summarize(med_rent = median(price)) %>% 
   left_join(base_years, by = c('beds','city')) %>%
   mutate(index = med_rent/base_rent * 100)
-
-#  mutate(pct_change = (med_rent/lag(med_rent) - 1) * 100,
- #        pct_change = replace_na(pct_change, 0),
-  #       cum_change = lag(pct_change) + pct_change + 100)
-
-# currenlty literally cumulative percentage change but that's not what the graph that kostis shared shows
-# to be fixed
 
 head(rent_cum_change)
 
