@@ -1,6 +1,6 @@
 ---
 title: "Session 2: Homework 1"
-author: "Your name goes here"
+author: "Vivian Van Oosten, Andrew Robak, Shivant Maharaj, Samarth Sharma, Jaelyn Shi, Anastasia Fu"
 date: "`r Sys.Date()`"
 output:
   html_document:
@@ -927,7 +927,7 @@ total_contb_by_city %>%
 
 # Details
 
--   Who did you collaborate with: TYPE NAMES HERE
--   Approximately how much time did you spend on this problem set: ANSWER HERE
+-   Who did you collaborate with: Vivian Van Oosten, Andrew Robak, Shivant Maharaj, Samarth Sharma, Jaelyn Shi, Anastasia Fu
+-   Approximately how much time did you spend on this problem set: 12 hrs
 -   What, if anything, gave you the most trouble: ANSWER HERE
 
