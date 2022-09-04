@@ -194,9 +194,9 @@ What can you infer from these plots? Don't just explain what's in the graph, but
 
 > TYPE YOUR ANSWER AFTER (AND OUTSIDE!) THIS BLOCKQUOTE.
 
-# Analysis of movies- IMDB dataset
+# Analysis of IMDB Movies Data
 
-We will look at a subset sample of movies, taken from the [Kaggle IMDB 5000 movie dataset](https://www.kaggle.com/carolzhangdc/imdb-5000-movie-dataset)
+<!-- We will look at a subset sample of movies, taken from the [Kaggle IMDB 5000 movie dataset](https://www.kaggle.com/carolzhangdc/imdb-5000-movie-dataset) -->
 
 ```{r,load_movies, warning=FALSE, message=FALSE, eval=FALSE}
 
@@ -205,22 +205,25 @@ glimpse(movies)
 
 ```
 
-Besides the obvious variables of `title`, `genre`, `director`, `year`, and `duration`, the rest of the variables are as follows:
+```{=html}
+<!--Besides the obvious variables of `title`, `genre`, `director`, `year`, and `duration`, the rest of the variables are as follows:
 
 -   `gross` : The gross earnings in the US box office, not adjusted for inflation
 -   `budget`: The movie's budget
 -   `cast_facebook_likes`: the number of facebook likes cast memebrs received
 -   `votes`: the number of people who voted for (or rated) the movie in IMDB
 -   `reviews`: the number of reviews for that movie
--   `rating`: IMDB average rating
+-   `rating`: IMDB average rating 
 
 ## Use your data import, inspection, and cleaning skills to answer the following:
 
--   Are there any missing values (NAs)? Are all entries distinct or are there duplicate entries?
+-   Are there any missing values (NAs)? Are all entries distinct or are there duplicate entries? -->
+```
+> The movies dataset was imported and inspected using Skimr, and there were no missing values identified within the dataset. When checking for duplicates within the dataset, we identified that there were 54 duplicated titles which may result in duplicated entries within the dataset.
 
-> The movies dataset was inspected using Skimr, and there were no missing values identified within the dataset. When checking for duplicates within the dataset, we identified that there were 54 duplicated titles which may result in duplicated entries within the dataset.
+<!-- -   Produce a table with the count of movies by genre, ranked in descending order-->
 
--   Produce a table with the count of movies by genre, ranked in descending order
+### Table showing the amount of IMBD movies per genre
 
 ```{r , count_of_movies_per_genre}
 
@@ -231,7 +234,9 @@ movies %>%
   
 ```
 
--   Produce a table with the average gross earning and budget (`gross` and `budget`) by genre. Calculate a variable `return_on_budget` which shows how many \$ did a movie make at the box office for each \$ of its budget. Ranked genres by this `return_on_budget` in descending order
+<!-- -   Produce a table with the average gross earning and budget (`gross` and `budget`) by genre. Calculate a variable `return_on_budget` which shows how many \$ did a movie make at the box office for each \$ of its budget. Ranked genres by this `return_on_budget` in descending order -->
+
+### Table showing movie revenue indicators per genre
 
 ```{r , avg_gross_earning}
 
@@ -245,7 +250,9 @@ movies %>%
 
 ```
 
--   Produce a table that shows the top 15 directors who have created the highest gross revenue in the box office. Don't just show the total gross amount, but also the mean, median, and standard deviation per director.
+<!-- -   Produce a table that shows the top 15 directors who have created the highest gross revenue in the box office. Don't just show the total gross amount, but also the mean, median, and standard deviation per director. -->
+
+### Table showing the Top 15 directors ranked by highest mean gross revenue
 
 ```{r , top_directors}
 
@@ -256,9 +263,13 @@ movies %>%
 
 ```
 
--   Finally, ratings. Produce a table that describes how ratings are distributed by genre. We don't want just the mean, but also, min, max, median, SD and some kind of a histogram or density graph that visually shows how ratings are distributed.
+<!-- -   Finally, ratings. Produce a table that describes how ratings are distributed by genre. We don't want just the mean, but also, min, max, median, SD and some kind of a histogram or density graph that visually shows how ratings are distributed. -->
 
-> We have added both a density graph and a box plot to visually represent how ratings are distributed. We believe that the box plot more accurately represents the distribution of ratings per genre, with taking the count of rating submissions as well.
+## Graphics showing the spread of IMDB ratings per genre
+
+### Table showing the summary statistics for IMDB movie ratings
+
+> We have added both a density graph and a box plot to visually represent how ratings are distributed. We believe that the box plot more accurately represents the distribution of ratings per genre, with taking the count of rating submissions as well. When cross-analyzing the various distributions, the box plot diagrams allow for an easier comparison between genres.
 
 ```{r, ratings}
 
@@ -269,31 +280,31 @@ data <- movies %>%
 data
 
 ggplot(movies) + aes(x = rating, y = genre ) + geom_boxplot() + labs(
-    title = 'Distribution of movie ratings per genre',
-    subtitle = 'Box plot showing the variation in genre ratings',
-    x = NULL,
-    y = NULL,
-    caption = '',
+    title = 'Distribution of IMDb movie ratings is largely uniform accross genres',
+    subtitle = 'Box plot showing the variation of IMDB genre ratings',
+    x = 'Ratings',
+    y = 'Genres',
+    caption = 'Source: Kaggle IMDB 5000 movie dataset',
     xticks = ''
   )
 
 ggplot(movies) + aes(rating) + geom_density() +
   facet_wrap(vars(genre)) + labs(
-    title = 'Distribution of movie ratings per genre',
-    subtitle = 'Density graph showing the variation in genre ratings',
-    x = NULL,
-    y = NULL,
-    caption = '',
+    title = 'Distribution of IMDb movie ratings is largely uniform accross genres',
+    subtitle = 'Density graph showing the variation in IMDB genre ratings',
+    x = 'Ratings',
+    y = 'Density',
+    caption = 'Source: Kaggle IMDB 5000 movie dataset',
     xticks = ''
   )
 
-
 ```
 
-## Use `ggplot` to answer the following
+```{=html}
+<!-- ### Use `ggplot` to answer the following
 
--   Examine the relationship between `gross` and `cast_facebook_likes`. Produce a scatterplot and write one sentence discussing whether the number of facebook likes that the cast has received is likely to be a good predictor of how much money a movie will make at the box office. What variable are you going to map to the Y- and X- axes?
-
+-   Examine the relationship between `gross` and `cast_facebook_likes`. Produce a scatterplot and write one sentence discussing whether the number of facebook likes that the cast has received is likely to be a good predictor of how much money a movie will make at the box office. What variable are you going to map to the Y- and X- axes? -->
+```
 > The number of facebook likes is not a good predictor of how much money a movie will make at the box office as movies with the same number of likes received by cast earned vastly different amounts.
 
 ```{r, gross_on_fblikes}
@@ -312,7 +323,7 @@ ggplot(movies) +
 
 ```
 
--   Examine the relationship between `gross` and `budget`. Produce a scatterplot and write one sentence discussing whether budget is likely to be a good predictor of how much money a movie will make at the box office.
+<!--  -   Examine the relationship between `gross` and `budget`. Produce a scatterplot and write one sentence discussing whether budget is likely to be a good predictor of how much money a movie will make at the box office.-->
 
 > Gross US Earnings could be predicted by looking at the movie's budget as the two variables display a positive relationship relationship.
 
@@ -332,7 +343,7 @@ ggplot(movies) +
     caption = 'Source: Kaggle IMDB 5000 movie dataset')
 ```
 
--   Examine the relationship between `gross` and `rating`. Produce a scatterplot, faceted by `genre` and discuss whether IMDB ratings are likely to be a good predictor of how much money a movie will make at the box office. Is there anything strange in this dataset?
+<!--  -   Examine the relationship between `gross` and `rating`. Produce a scatterplot, faceted by `genre` and discuss whether IMDB ratings are likely to be a good predictor of how much money a movie will make at the box office. Is there anything strange in this dataset? -->
 
 > In general, IMDB ratings could be used to predict the gross earnings of movies in the US - this positive relationship is particularly visible in the Action, Adventure, and Comedy genres. However, data in the 'movies' dataset is not uniformly distributed across genres, with some genres containing only a few data points, which prohibits a meaningful analysis of the relationship between IMDB ratings and gross earnings.
 >
@@ -364,14 +375,24 @@ We must first identify which stocks we want to download data for, and for this w
 
 ```{r load_nyse_data, message=FALSE, warning=FALSE}
 nyse <- read_csv(here::here("data","nyse.csv"))
+
 ```
 
 Based on this dataset, create a table and a bar plot that shows the number of companies per sector, in descending order
 
 ```{r companies_per_sector}
 
-# YOUR CODE GOES HERE
-
+comp_per_sector <- nyse %>% 
+  group_by(sector) %>% 
+  summarise(companies = n()) %>% 
+  slice_max(companies, n=100) %>% 
+  mutate(sector = fct_reorder(sector, companies))
+  
+ggplot(comp_per_sector) +
+  aes(x = companies, y = sector) +
+  geom_col()
+comp_per_sector
+nyse
 
 ```
 
@@ -469,7 +490,7 @@ spotify_songs <- readr::read_csv('https://raw.githubusercontent.com/rfordatascie
 The data dictionary can be found below
 
 | **variable**             | **class** | **description**                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-|-----------------|-----------------|---------------------------------------|
+|------------------|------------------|------------------------------------|
 | track_id                 | character | Song unique ID                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | track_name               | character | Song Name                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | track_artist             | character | Song Artist                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
