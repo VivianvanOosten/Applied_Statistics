@@ -190,14 +190,12 @@ We can clearly spot the financial crisis happening in 2008, when all the prices 
 
 # Analysis of movies- IMDB dataset
 
-<!-- We will look at a subset sample of movies, taken from the [Kaggle IMDB 5000 movie dataset](https://www.kaggle.com/carolzhangdc/imdb-5000-movie-dataset) -->
-
 We are now analysing a dataset from imbd with 5000 movies. We will analyse the differences between genres in terms of ratings, popularity (facebook likes), and revenue.
 
 ```{r,load_movies, warning=FALSE, message=FALSE, eval=FALSE}
 
 movies <- read_csv(here::here("data", "movies.csv"))
-glimpse(movies)
+
 
 ```
 
@@ -207,11 +205,14 @@ The movies dataset was imported and inspected using Skimr, and there were no mis
 ### Table showing the amount of IMBD movies per genre
 
 ```{r , count_of_movies_per_genre}
-movies %>% 
+
+movies_by_genre <- movies %>% 
   group_by(genre) %>% 
   summarize(count = n()) %>% 
+  ungroup %>%
   arrange(desc(count))
   
+movies_by_genre
 ```
 
 
@@ -221,7 +222,7 @@ movies %>%
 ```{r , avg_gross_earning}
 
 movies %>% 
-  mutate(movies, return_on_budget = gross/budget) %>% 
+  mutate(return_on_budget = gross/budget) %>% 
   group_by(genre) %>% 
   summarize(average_gross = mean(gross), average_budget = mean(budget),  average_return_on_budget = mean(return_on_budget)) %>% 
   arrange(desc(average_return_on_budget)) 
@@ -815,8 +816,8 @@ There appears to be no significant difference in track_popularity between major 
 
 We have created a graph to show the cumulative % change in median rental prices for 0-, 1-, and 2-bed flats between 2000 and 2018 for the top twelve cities in Bay Area.
 
-```{r}
-base_years <- rent %>%
+
+![](images/challenge1.png)
   group_by(beds, city) %>%
   top_n(-1, year ) %>%
   summarize(base_rent = median(price))
