@@ -842,7 +842,12 @@ contributors_by_city <- left_join(CA_contributors_2016, zipcodes, by = 'zip')
 head(contributors_by_city)
 ```
 ```{r}
-candidates <- c('Trump, Donald J.', 'Clinton, Hillary Rodham')
+candidates <- contributors_by_city %>%
+  group_by(cand_nm) %>% 
+  summarise(total_contr = sum(contb_receipt_amt)) %>%
+  top_n(10, total_contr)
+
+candidates <- candidates$cand_nm
 
 total_contb_by_city <- contributors_by_city %>%
   group_by(cand_nm, primary_city) %>%
@@ -850,7 +855,7 @@ total_contb_by_city <- contributors_by_city %>%
   ungroup %>% group_by(cand_nm) %>% top_n(10) %>%
   ungroup
 
-total_contb_by_city
+candidates
 
 ```
 
