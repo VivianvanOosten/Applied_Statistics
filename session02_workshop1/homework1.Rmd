@@ -491,19 +491,60 @@ ggplot(spotify_songs) +
   geom_point() +
   geom_smooth()
 cor(spotify_songs$danceability, spotify_songs$track_popularity)
-# The correlation coefficient is again very low, but a much higher danceability is associated with a higher popularity. 
+# The correlation coefficient is again very low, but a much higher danceability is associated with a slightly higher popularity. 
 ```
 
 
 5.  `mode` indicates the modality (major or minor) of a track, the type of scale from which its melodic content is derived. Major is represented by 1 and minor is 0. Do songs written on a major scale have higher `danceability` compared to those in minor scale? What about `track_popularity`?
 
+```{r}
+mode_analysis <- spotify_songs %>%
+  group_by(mode) %>%
+  summarize(avg_danceability = mean(danceability),
+            median_danceability = median(danceability),
+            avg_popularity = mean(track_popularity),
+            median_popularity = median(track_popularity))
+
+mode_analysis
+```
+
+
+```{r}
+library(BSDA)
+
+spotify_songs %>%
+  mutate(mode = factor(mode)) %>%
+ggplot() +
+  aes(x = danceability, fill = mode) +
+  geom_histogram(alpha = 0.2, position = 'identity') 
+
+mode1 <- filter(spotify_songs, mode == 1)
+mode0 <- filter(spotify_songs, mode == 0)
+  
+z.test(mode1$danceability, mode0$danceability, alternative = 'greater', mu=0, sigma.x = StdDev(mode1$danceability), sigma.y = StdDev(mode0$danceability))
+# There appears to be no significant difference in danceability between major and minor modes.
+```
+```{r}
+
+spotify_songs %>%
+  mutate(mode = factor(mode)) %>%
+ggplot() +
+  aes(x = track_popularity, fill = mode) +
+  geom_histogram(alpha = 0.2, position = 'identity') 
+
+mode1 <- filter(spotify_songs, mode == 1)
+mode0 <- filter(spotify_songs, mode == 0)
+  
+z.test(mode1$track_popularity, mode0$track_popularity, alternative = 'greater', mu=0, sigma.x = StdDev(mode1$track_popularity), sigma.y = StdDev(mode0$track_popularity))
+# There appears to be no significant difference in track_popularity between major and minor modes.
+```
 
 
 # Challenge 1: Replicating a chart
 
 The purpose of this exercise is to reproduce a plot using your `dplyr` and `ggplot2` skills. It builds on exercise 1, the San Francisco rentals data.
 
-You have to create a graph that calculates the cumulative % change for 0-, 1-1, and 2-bed flats between 2000 and 2018 for the top twelve cities in Bay Area, by number of ads that appeared in Craigslist. Your final graph should look like this
+You have to create a graph that calculates the cumulative % change for 0-, 1-, and 2-bed flats between 2000 and 2018 for the top twelve cities in Bay Area, by number of ads that appeared in Craigslist. Your final graph should look like this
 
 ![](images/challenge1.png)
 
