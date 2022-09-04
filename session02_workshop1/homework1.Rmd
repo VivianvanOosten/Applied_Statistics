@@ -37,15 +37,13 @@ library(skimr)
 library(janitor)
 library(vroom)
 library(tidyquant)
+library(scales)
 ```
 
 # Rents in San Francsisco 2000-2018
 
-[Kate Pennington](https://www.katepennington.org/data) created a panel of historic Craigslist rents by scraping posts archived by the Wayback Machine. You can read more about her work here
-
-[What impact does new housing have on rents, displacement, and gentrification in the surrounding neighborhood? Read our interview with economist Kate Pennington about her article, "Does Building New Housing Cause Displacement?:The Supply and Demand Effects of Construction in San Francisco."](https://matrix.berkeley.edu/research-article/kate-pennington-on-gentrification-and-displacement-in-san-francisco/)
-
-In our case, we have a clean(ish) dataset with about 200K rows that correspond to Craigslist listings for renting properties in the greater SF area. The data dictionary is as follows
+We are analysing a dataset of Craiglist listings for rental properties in the greater SF area.
+The data dictionary is as follows
 
 | variable    | class     | description           |
 |-------------|-----------|-----------------------|
@@ -67,7 +65,7 @@ In our case, we have a clean(ish) dataset with about 200K rows that correspond t
 | descr       | character | description           |
 | details     | character | additional details    |
 
-The dataset was used in a recent [tidyTuesday](https://github.com/rfordatascience/tidytuesday) project.
+The dataset was used in a recent [tidyTuesday](https://github.com/rfordatascience/tidytuesday) project, which is where we sourced the data. 
 
 ```{r}
 # download directly off tidytuesdaygithub repo
@@ -76,7 +74,7 @@ rent <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidyt
 
 ```
 
-What are the variable types? Do they all correspond to what they really are? Which variables have most missing values?
+We have conducted an analysis on the variables. View the analysis below.
 
 ```{r skim_data}
 skimr::skim(rent)
@@ -85,27 +83,23 @@ head(rent)
 
 ```
 
-# my answer
 
-Most column types correspond with what they should be, but date is stored as a double '20050111' instead of a date 2005-01-11. Other column types like number of bedrooms are a double where an integer suffices. We could change this to use less Description has the most missing values, after which address and details follow with also 190000+ missing values.
+Most column types correspond with what they should be, but date is stored as a double '20050111' instead of a date 2005-01-11. Other column types like number of bedrooms (beds) are a double where an integer suffices. We could change this to integer to use less storage space. Description has the most missing values, after which address and details follow with also 190000+ missing values.
 
-# end of my answer
 
-Make a plot that shows the top 20 cities in terms of % of classifieds between 2000-2018. You need to calculate the number of listings by city, and then convert that number to a %.
-
-The final graph should look like this![](images/top_cities.png)
+We have plotted the top 20 cities in terms of % of rental listings. 
 
 ```{r top_cities}
-# YOUR CODE GOES HERE
+# creating a dataset with the top 20 cities by number of listings
 top_20_cities <- rent %>%
   group_by(city) %>%
-  filter(year < 2019) %>%
+  filter(year < 2019) %>% # ensuring we have the right years
   summarize(total_listings = n()) %>%
-  mutate(percentage = total_listings/sum(total_listings),
-         city = fct_reorder(city, total_listings)) %>%
+  mutate(percentage = total_listings/sum(total_listings), # changing number to a percentage
+         city = fct_reorder(city, total_listings)) %>% #ordering by # listings
   slice_max(total_listings, n=20) 
 
-
+# graphing the top 20 cities as a barplot
 ggplot(top_20_cities) +
   aes(x = percentage, y = city) +
   geom_col() +
@@ -117,15 +111,13 @@ ggplot(top_20_cities) +
     caption = 'Source: Pennington, Kate(2018). Bay Area Craigslist Rental Housing Posts, 2000-2018',
     xticks = 'percentage'
   ) +
-  scale_x_continuous(labels = scales::percent)+
+  scale_x_continuous(labels = scales::percent) +
   theme_minimal(base_size=16)
   
 
 ```
 
-Make a plot that shows the evolution of median prices in San Francisco for 0, 1, 2, and 3 bedrooms listings. The final graph should look like this
-
-![](images/sf_rentals.png)
+It is clear that San Francisco is responsible for 25% of the listings, making that the most interesting city to start investigating. To analyse what is happening with the rental prices in San Francisco, we have plotted the evolution of median prices in San Francisco for 0, 1, 2 and 3 bedroom listings. 
 
 ```{r sf_median_prices}
 
@@ -312,14 +304,14 @@ ggplot(movies) + aes(rating) + geom_density() +
 ggplot(movies) +
   aes(x = cast_facebook_likes, y = gross) +
   geom_point() +
-  scale_x_log10(labels = comma) +
+  scale_x_log10(labels = scales::comma) +
   scale_y_continuous(labels = dollar) +
   labs(
     title = "Number of Cast's Facebook Likes is not a Good Predictor of Gross Movie Earnings",
     subtitle = 'Relationship Between Facebook Likes Received by Cast and Total US Earnings',
     x = "# Facebook Likes Cast Members Received",
     y = "Gross Earnings in the US Box Office, not Inflation-adjusted",
-    caption = 'Source: Kaggle IMDB 5000 movie dataset',)
+    caption = 'Source: Kaggle IMDB 5000 movie dataset')
 
 ```
 
