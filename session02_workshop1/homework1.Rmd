@@ -243,10 +243,9 @@ movies %>%
 movies %>% 
   mutate(movies, return_on_budget = gross/budget) %>% 
   group_by(genre) %>% 
-  summarize(average_gross = mean(gross), average_budget = mean(budget), average_return_on_budget = mean(return_on_budget)) %>% 
+  summarize(average_gross = mean(gross), average_budget = mean(budget),  average_return_on_budget = mean(return_on_budget)) %>% 
   arrange(desc(average_return_on_budget)) 
 
-#sense check with team and tutors
 
 ```
 
@@ -279,6 +278,7 @@ data <- movies %>%
 
 data
 
+#We have added an additional visualisation for the representation of the distribution of ratings
 ggplot(movies) + aes(x = rating, y = genre ) + geom_boxplot() + labs(
     title = 'Distribution of IMDb movie ratings is largely uniform accross genres',
     subtitle = 'Box plot showing the variation of IMDB genre ratings',
@@ -288,6 +288,7 @@ ggplot(movies) + aes(x = rating, y = genre ) + geom_boxplot() + labs(
     xticks = ''
   )
 
+#Required visualisation
 ggplot(movies) + aes(rating) + geom_density() +
   facet_wrap(vars(genre)) + labs(
     title = 'Distribution of IMDb movie ratings is largely uniform accross genres',
@@ -313,7 +314,7 @@ ggplot(movies) +
   aes(x = cast_facebook_likes, y = gross) +
   geom_point() +
   scale_x_log10(labels = comma) +
-  scale_y_continuous(labels = dollar) +
+  scale_y_continuous(labels = dollar) + #We changed the scale of the visualsation to make it more presentable
   labs(
     title = "Number of Cast's Facebook Likes is not a Good Predictor of Gross Movie Earnings",
     subtitle = 'Relationship Between Facebook Likes Received by Cast and Total US Earnings',
@@ -332,9 +333,9 @@ ggplot(movies) +
 ggplot(movies) +
   aes(x = budget, y = gross) +
   geom_point() +
-  scale_x_continuous(labels = dollar) +
+  scale_x_continuous(labels = dollar) + 
   scale_y_continuous(labels = dollar) +
-  geom_smooth(method='lm') +
+  geom_smooth(method='lm') + #We added a line of best fit to the visualsation to plot the general trend within the revenue
     labs(
     title = "Gross US Earnings Can Be Consistently Predicted by the Movie's Budget",
     subtitle = "Relationship Between Movie's Budget by Cast and Total US Earnings",
@@ -490,7 +491,7 @@ spotify_songs <- readr::read_csv('https://raw.githubusercontent.com/rfordatascie
 The data dictionary can be found below
 
 | **variable**             | **class** | **description**                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-|------------------|------------------|------------------------------------|
+|-------------------|-------------------|------------------------------------|
 | track_id                 | character | Song unique ID                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | track_name               | character | Song Name                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | track_artist             | character | Song Artist                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
