@@ -147,25 +147,30 @@ ggplot(sf_rentals) +
 
 ```
 
-Finally, make a plot that shows median rental prices for the top 12 cities in the Bay area. Your final graph should look like this
+We see that the rents have been increasing sincd 2005, with an exception for the recession in 2008. Since 2015 we see another decrease in rents for all sizes. 
 
-![](images/one_bed_bay_area.png)
+Having considered San Francisco, we turn to analyse the top 12 cities by number of listings in the Bay Area. We plot the median rental prices for those cities below.
+
 
 ```{r spirit_plot}
 
+# determining the top 12 cities in terms of listings
 top12_cities <- rent %>%
   group_by(city) %>%
   summarize(total_listings = n()) %>%
   slice_max(total_listings, n=12)
 
+# creating a vector with the city names
 top12_cities <- top12_cities$city
 
+# gathering the dataset to plot, focusing on 1-bedroom flats
 one_bed_bay_area <- rent %>%
   filter(beds == 1,
          city %in% top12_cities) %>%
   group_by(city, year) %>%
   summarize(rent = median(price))
 
+# creating the plot
 ggplot(one_bed_bay_area) +
   aes(x = year, y = rent, colour = city) +
   facet_wrap(vars(city)) +
@@ -180,15 +185,14 @@ ggplot(one_bed_bay_area) +
 
 ```
 
-What can you infer from these plots? Don't just explain what's in the graph, but speculate or tell a short story (1-2 paragraphs max).
-
-> TYPE YOUR ANSWER AFTER (AND OUTSIDE!) THIS BLOCKQUOTE.
 
 We can clearly spot the financial crisis happening in 2008, when all the prices are going down across the cities and types of bedrooms in San Francisco. The effect is the smallest in Santa Rosa and Oakland, where we also don't see an increase ahead of the recession, so a limited decrease is not unsurprising. The effect is the greatest where the increase is also the greatest, for example a three-bedroom in San Francisco or Santa Clara. 
 
 # Analysis of movies- IMDB dataset
 
 <!-- We will look at a subset sample of movies, taken from the [Kaggle IMDB 5000 movie dataset](https://www.kaggle.com/carolzhangdc/imdb-5000-movie-dataset) -->
+
+We are now analysing a dataset from imbd with 5000 movies. We will analyse the differences between genres in terms of ratings, popularity (facebook likes), and revenue.
 
 ```{r,load_movies, warning=FALSE, message=FALSE, eval=FALSE}
 
@@ -197,28 +201,12 @@ glimpse(movies)
 
 ```
 
-```{=html}
-<!--Besides the obvious variables of `title`, `genre`, `director`, `year`, and `duration`, the rest of the variables are as follows:
+The movies dataset was imported and inspected using Skimr, and there were no missing values identified within the dataset. When checking for duplicates within the dataset, we identified that there were 54 duplicated titles which may result in duplicated entries within the dataset.
 
--   `gross` : The gross earnings in the US box office, not adjusted for inflation
--   `budget`: The movie's budget
--   `cast_facebook_likes`: the number of facebook likes cast memebrs received
--   `votes`: the number of people who voted for (or rated) the movie in IMDB
--   `reviews`: the number of reviews for that movie
--   `rating`: IMDB average rating 
-
-## Use your data import, inspection, and cleaning skills to answer the following:
-
--   Are there any missing values (NAs)? Are all entries distinct or are there duplicate entries? -->
-```
-> The movies dataset was imported and inspected using Skimr, and there were no missing values identified within the dataset. When checking for duplicates within the dataset, we identified that there were 54 duplicated titles which may result in duplicated entries within the dataset.
-
-<!-- -   Produce a table with the count of movies by genre, ranked in descending order-->
 
 ### Table showing the amount of IMBD movies per genre
 
 ```{r , count_of_movies_per_genre}
-
 movies %>% 
   group_by(genre) %>% 
   summarize(count = n()) %>% 
@@ -226,7 +214,7 @@ movies %>%
   
 ```
 
-<!-- -   Produce a table with the average gross earning and budget (`gross` and `budget`) by genre. Calculate a variable `return_on_budget` which shows how many \$ did a movie make at the box office for each \$ of its budget. Ranked genres by this `return_on_budget` in descending order -->
+
 
 ### Table showing movie revenue indicators per genre
 
@@ -242,7 +230,6 @@ movies %>%
 
 ```
 
-<!-- -   Produce a table that shows the top 15 directors who have created the highest gross revenue in the box office. Don't just show the total gross amount, but also the mean, median, and standard deviation per director. -->
 
 ### Table showing the Top 15 directors ranked by highest mean gross revenue
 
@@ -255,22 +242,22 @@ movies %>%
 
 ```
 
-<!-- -   Finally, ratings. Produce a table that describes how ratings are distributed by genre. We don't want just the mean, but also, min, max, median, SD and some kind of a histogram or density graph that visually shows how ratings are distributed. -->
 
 ## Graphics showing the spread of IMDB ratings per genre
 
 ### Table showing the summary statistics for IMDB movie ratings
 
-> We have added both a density graph and a box plot to visually represent how ratings are distributed. We believe that the box plot more accurately represents the distribution of ratings per genre, with taking the count of rating submissions as well. When cross-analyzing the various distributions, the box plot diagrams allow for an easier comparison between genres.
+We have added both a density graph and a box plot to visually represent how ratings are distributed. We believe that the box plot more accurately represents the distribution of ratings per genre, with taking the count of rating submissions as well. When cross-analyzing the various distributions, the box plot diagrams allow for an easier comparison between genres.
 
 ```{r, ratings}
-
+# summarizing the dataset by genre
 data <- movies %>% 
   group_by(genre) %>% 
   summarize(mean = mean(rating), min = min(rating), max(rating), median = median(rating), standard_dev = sd(rating))
 
 data
 
+#plotting boxplots to show the distribution of the ratings
 ggplot(movies) + aes(x = rating, y = genre ) + geom_boxplot() + labs(
     title = 'Distribution of IMDb movie ratings is largely uniform accross genres',
     subtitle = 'Box plot showing the variation of IMDB genre ratings',
@@ -280,6 +267,7 @@ ggplot(movies) + aes(x = rating, y = genre ) + geom_boxplot() + labs(
     xticks = ''
   )
 
+# plotting density plots to show the distribution of the ratings
 ggplot(movies) + aes(rating) + geom_density() +
   facet_wrap(vars(genre)) + labs(
     title = 'Distribution of IMDb movie ratings is largely uniform accross genres',
