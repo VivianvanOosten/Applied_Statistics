@@ -375,12 +375,28 @@ We must first identify which stocks we want to download data for, and for this w
 
 ```{r load_nyse_data, message=FALSE, warning=FALSE}
 nyse <- read_csv(here::here("data","nyse.csv"))
-
+glimpse(nyse)
 ```
 
 Based on this dataset, create a table and a bar plot that shows the number of companies per sector, in descending order
 
 ```{r companies_per_sector}
+comp_per_sector <- nyse %>% 
+  group_by(sector) %>% 
+  summarise(companies = n()) %>% 
+  slice_max(companies, n=100) %>% 
+  mutate(sector = fct_reorder(sector, companies))
+comp_per_sector 
+ggplot(comp_per_sector) +
+  aes(x = companies, y = sector) +
+  geom_col() +
+  labs(
+    title = 'Finance is the Largest Sector, Consumer Durables is the smallest',
+    subtitle = "Companies Per Sector",
+    x = 'Companies',
+    y = 'Sector',
+    caption = 'Source: Federal Reserve Economic Database',
+  ) 
 
 comp_per_sector <- nyse %>% 
   group_by(sector) %>% 
@@ -402,7 +418,7 @@ Next, let's choose some stocks and their ticker symbols and download some data. 
 # Notice the cache=TRUE argument inthe chunk options. Because getting data is time consuming, 
 # cache=TRUE means that once it downloads data, the chunk will not run again next time you knit your Rmd
 
-myStocks <- c("AAPL","JPM","DIS","DPZ","ANF","TSLA","XOM","SPY" ) %>%
+myStocks <- c("MMM","ABT","ACN","ANTM","AGR","TSLA","SPY" ) %>%
   tq_get(get  = "stock.prices",
          from = "2011-01-01",
          to   = "2022-08-31") %>%
@@ -444,36 +460,78 @@ myStocks_returns_annual <- myStocks %>%
 ```
 
 Create a table where you summarise monthly returns for each of the stocks and `SPY`; min, max, median, mean, SD.
-
+###Summary Statistics For Monthly Returns
 ```{r summarise_monthly_returns}
-
-# YOUR CODE GOES HERE
-
+summary_monthly_returns <- myStocks_returns_monthly %>% 
+  
+  group_by(symbol) %>% 
+  summarise(min_return = min(monthly_returns),
+            max_return = max(monthly_returns),
+            median_return = median(monthly_returns),
+            mean_return = mean(monthly_returns),
+            sd_return = sd(monthly_returns))
+  
+  
+   
+summary_monthly_returns
 ```
 
 Plot a density plot, using `geom_density()`, for each of the stocks
 
 ```{r density_monthly_returns}
+myStocks_returns_monthly %>% 
+  group_by(symbol) %>% 
+  ggplot() +
+  aes (x = monthly_returns, fill = symbol) +
+  geom_density() +
+  labs(
+    title = 'TSLA Has the Widest Spread',
+    subtitle = 'Density Plot - Stockwise Monthly Return',
+    x = 'Return',
+    y = 'Density',
+    caption = 'Source: Federal Reserve Economic Database'
+  ) +
+  facet_wrap(~symbol, ncol = 1) +
+  #facet_grid()+
+ theme_bw()+
+  theme(legend.position = "none")+
+  scale_x_continuous(labels = scales::percent)
 
 # YOUR CODE GOES HERE
 
 ```
 
+
 What can you infer from this plot? Which stock is the riskiest? The least risky?
 
-> TYPE YOUR ANSWER AFTER (AND OUTSIDE!) THIS BLOCKQUOTE.
+> The graph shows that TSLA has the widest spread, suggesting it has the greatest deviation from the mean and thus is the most risky stock. The remaining stocks have a similar spread, we need further analysis to come to a concrete conclusion to determine which stock is the least risky.
 
 Finally, make a plot that shows the expected monthly return (mean) of a stock on the Y axis and the risk (standard deviation) in the X-axis. Please use `ggrepel::geom_text_repel()` to label each stock
 
 ```{r risk_return_plot}
-# YOUR CODE GOES HERE
+  summary_monthly_returns %>% 
+  ggplot() +
+  aes(x = mean_return, y = sd_return, label = symbol, colour = symbol)+
+  ggrepel::geom_text_repel()+
+  geom_point()+
+  coord_flip()+
+ # theme_minimal()+
+  theme(legend.position = "none")+
+  scale_x_continuous(labels = scales::percent)+
+  scale_y_continuous(labels = scales::percent)+
+  labs(
+    title = "Tesla Stock Involves the Highest Risk and Return" ,
+    subtitle = "Risk Return Analysis",
+    x = "Percentage Risk Involved",
+    y = "Expected Monthly Return",
+    caption = 'Source: Federal Reserve Economic Database'
+  )
 
 ```
 
 What can you infer from this plot? Are there any stocks which, while being riskier, do not have a higher expected return?
 
-> TYPE YOUR ANSWER AFTER (AND OUTSIDE!) THIS BLOCKQUOTE.
-
+>  According to our analysis, TSLA stock is the most risky stock with fluctuations around 5%. It also offers the highest return with an expected monthly return of 16%. On the other hand MMM provides the least risk with fluctations less than 1% and also offers a relatively high retrun, which is above 4%.
 # On your own: Spotify
 
 We have downloaded a large dataset on spotify songs and are going to analyse what makes a track popular.
