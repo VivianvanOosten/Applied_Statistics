@@ -797,7 +797,7 @@ head(rent_cum_change)
 ```{r}
 ggplot(rent_cum_change) +
   aes(x = year, y = index, color = city) +
-  geom_line() + 
+  geom_line(show.legend = FALSE) + 
   facet_grid( beds ~ city ) +
   labs(
     title = 'Cumulative % change in 0, 1, and 2-bed rentals in Bay Area',
@@ -811,17 +811,13 @@ ggplot(rent_cum_change) +
 
 # Challenge 2: 2016 California Contributors plots
 
-As discussed in class, I would like you to reproduce the plot that shows the top ten cities in highest amounts raised in political contributions in California during the 2016 US Presidential election.
+We are looking to create a plot to analyse the origin of the contributions to the campaigns of Hillary Clinton and Donald Trump in the 2016. This we will do by joining a dataset with the names of the cities and their zipcodes with a dataset featuring the contributions of each of the candidates. 
 
 ```{r challenge2, echo=FALSE, out.width="100%"}
 knitr::include_graphics(here::here("images", "challenge2.png"), error = FALSE)
 ```
 
-To get this plot, you must join two dataframes; the one you have with all contributions, and data that can translate zipcodes to cities. You can find a file with all US zipcodes, e.g., here <http://www.uszipcodelist.com/download.html>.
 
-The easiest way would be to create two plots and then place one next to each other. For this, you will need the `patchwork` package. <https://cran.r-project.org/web/packages/patchwork/index.html>
-
-While this is ok, what if one asked you to create the same plot for the top 10 candidates and not just the top two? The most challenging part is how to reorder within categories, and for this you will find Julia Silge's post on [REORDERING AND FACETTING FOR GGPLOT2](https://juliasilge.com/blog/reorder-within/) useful.
 
 ```{r, load_CA_data, warnings= FALSE, message=FALSE}
 library(tidytext)
@@ -882,24 +878,9 @@ total_contb_by_city %>%
 ```
 
 
-# Deliverables
-
-There is a lot of explanatory text, comments, etc. You do not need these, so delete them and produce a stand-alone document that you could share with someone. Knit the edited and completed R Markdown file as an HTML document (use the "Knit" button at the top of the script editor window) and upload it to Canvas.
-
 # Details
 
 -   Who did you collaborate with: TYPE NAMES HERE
 -   Approximately how much time did you spend on this problem set: ANSWER HERE
 -   What, if anything, gave you the most trouble: ANSWER HERE
 
-**Please seek out help when you need it,** and remember the [15-minute rule](https://mam2022.netlify.app/syllabus/#the-15-minute-rule){target="_blank"}. You know enough R (and have enough examples of code from class and your readings) to be able to do this. If you get stuck, ask for help from others, post a question on Slack-- and remember that I am here to help too!
-
-> As a true test to yourself, do you understand the code you submitted and are you able to explain it to someone else?
-
-# Rubric
-
-Check minus (1/5): Displays minimal effort. Doesn't complete all components. Code is poorly written and not documented. Uses the same type of plot for each graph, or doesn't use plots appropriate for the variables being analyzed.
-
-Check (3/5): Solid effort. Hits all the elements. No clear mistakes. Easy to follow (both the code and the output).
-
-Check plus (5/5): Finished all components of the assignment correctly and addressed both challenges. Code is well-documented (both self-documented and with additional comments as necessary). Used tidyverse, instead of base R. Graphs and tables are properly labelled. Analysis is clear and easy to follow, either because graphs are labeled clearly or you've written additional text to describe how you interpret the output.
