@@ -456,9 +456,7 @@ What can you infer from this plot? Are there any stocks which, while being riski
 
 # On your own: Spotify
 
-Spotify have an API, an Application Programming Interface. APIs are ways for computer programs to talk to each other. So while we use Spotify app to look up songs and artists, computers use the Spotify API to talk to the spotify server. There is an R package that allows R to talk to this API: [`spotifyr`](https://www.rcharlie.com/spotifyr/). One of your team members, need to sign up and get a [Spotify developer account](https://developer.spotify.com/dashboard/) and then you can download data about one's Spotify usage. A detailed article on how to go about it can be found here [Explore your activity on Spotify with R and *spotifyr*](https://towardsdatascience.com/explore-your-activity-on-spotify-with-r-and-spotifyr-how-to-analyze-and-visualize-your-stream-dee41cb63526)
-
-If you do not want to use the API, you can download a sample of over 32K songs by having a look at <https://github.com/rfordatascience/tidytuesday/blob/master/data/2020/2020-01-21/readme.md>
+We have downloaded a large dataset on spotify songs and are going to analyse what makes a track popular.
 
 ```{r, download_spotify_data}
 
@@ -492,20 +490,20 @@ The data dictionary can be found below
 | valence                  | double    | A measure from 0.0 to 1.0 describing the musical positiveness conveyed by a track. Tracks with high valence sound more positive (e.g. happy, cheerful, euphoric), while tracks with low valence sound more negative (e.g. sad, depressed, angry).                                                                                                                                                                                                                                                                  |
 | tempo                    | double    | The overall estimated tempo of a track in beats per minute (BPM). In musical terminology, tempo is the speed or pace of a given piece and derives directly from the average beat duration.                                                                                                                                                                                                                                                                                                                         |
 | duration_ms              | double    | Duration of song in milliseconds                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-
-In this dataset, there are only 6 types of `playlist_genre` , but we can still try to perform EDA on this dataset.
-
-Produce a one-page summary describing this dataset. Here is a non-exhaustive list of questions:
-
-1.  What is the distribution of songs' popularity (`track_popularity`). Does it look like a Normal distribution?
-2.  There are 12 [audio features](https://developer.spotify.com/documentation/web-api/reference/object-model/#audio-features-object) for each track, including confidence measures like `acousticness`, `liveness`, `speechines`and `instrumentalness`, perceptual measures like `energy`, `loudness`, `danceability` and `valence` (positiveness), and descriptors like `duration`, `tempo`, `key`, and `mode`. How are they distributed? can you roughly guess which of these variables is closer to Normal just by looking at summary statistics?
-3.  Is there any relationship between `valence` and `track_popularity`? `danceability` and `track_popularity` ?
-4.  `mode` indicates the modality (major or minor) of a track, the type of scale from which its melodic content is derived. Major is represented by 1 and minor is 0. Do songs written on a major scale have higher `danceability` compared to those in minor scale? What about `track_popularity`?
+Before we can get into analysing this dataset, we need to examine the distribution of the popularity of tracks on spotify. See below the histogram that shows the distribution.
 
 ```{r}
 ggplot(spotify_songs) +
   aes(x = track_popularity) +
-  geom_histogram()
+  geom_histogram() +
+  labs(
+    title = 'Many songs have a popularity of 0 on spotify',
+    subtitle = 'A histogram of the popularity rating of spotify songs',
+    x = 'Popularity rating',
+    y = 'Count', 
+    caption = 'Tidy Tuesday Spotify Songs dataset (accessed 04-09-2022)'
+  )
+  
 ```
 
 The track popularity seems to be a roughly normal distribution, with a lot of tracks with close to 0 popularity that do not fit with the distribution. This can be explained by a lot of small artists posting their own songs that not many people listen to, like someone creating a new podcast in their garage. Like in the music industry in general, not everyone makes it.
@@ -519,82 +517,184 @@ skim(spotify_songs) # seeing if we can determine whether the audio features look
 
 ggplot(spotify_songs) +
   aes(x = acousticness) +
-  geom_histogram()
+  geom_histogram() +
+  labs(
+    title = 'Acousticness is exponentially distributed',
+    subtitle = 'Distribution of acousticness',
+    x = 'Acousticness',
+    y = 'Count', 
+    caption = 'Tidy Tuesday Spotify Songs dataset (accessed 04-09-2022)'
+  )
 # acousticness looks like an exponential distribution, with most songs not having any acousticness at all.
 
 ggplot(spotify_songs) +
   aes(x = liveness) +
-  geom_histogram()
+  geom_histogram() +
+  labs(
+    title = 'Liveness is skewed right',
+    subtitle = 'Distribution of Liveness',
+    x = 'Liveness',
+    y = 'Count', 
+    caption = 'Tidy Tuesday Spotify Songs dataset (accessed 04-09-2022)'
+  )
 #Liveness is skewed right. Most songs have some liveness, but a few have a lot.
 
 ggplot(spotify_songs) +
   aes(x = speechiness) +
-  geom_histogram()
+  geom_histogram() +
+  labs(
+    title = 'Speechiness is exponentially distributed',
+    subtitle = 'Distribution of Speechiness',
+    x = 'Speechiness',
+    y = 'Count', 
+    caption = 'Tidy Tuesday Spotify Songs dataset (accessed 04-09-2022)'
+  )
 #Speechiness is an exponential distribution, similar to acousticness. Speechiness, however, has very few songs with exactly 0 speechiness.
 
 ggplot(spotify_songs) +
   aes(x = instrumentalness) +
-  geom_histogram()
+  geom_histogram() +
+  labs(
+    title = 'Instrumentalness is skewed right',
+    subtitle = 'Distribution of Instrumentalness',
+    x = 'Instrumentalness',
+    y = 'Count', 
+    caption = 'Tidy Tuesday Spotify Songs dataset (accessed 04-09-2022)'
+  )
 #Instrumentalness is skewed right. The vast majority of songs have a 0 instrumentalness, but there's another small bump around 0.8 where some songs have a lot of instrumentalness.
 
 ggplot(spotify_songs) +
   aes(x = energy) +
-  geom_histogram()
+  geom_histogram() +
+  labs(
+    title = 'Energy is normally distributed with a cutoff',
+    subtitle = 'Distribution of Energy',
+    x = 'Energy',
+    y = 'Count', 
+    caption = 'Tidy Tuesday Spotify Songs dataset (accessed 04-09-2022)'
+  )
 #Energy looks like a normal distribution, with a mean around 0.75. However, it is cut off at 1 so it is not a normal distribution.
 
 ggplot(spotify_songs) +
   aes(x = loudness) +
-  geom_histogram()
+  geom_histogram() +
+  labs(
+    title = 'Loudness is normally distributed with a small standard deviation',
+    subtitle = 'Distribution of Loudness',
+    x = 'Loudness',
+    y = 'Count', 
+    caption = 'Tidy Tuesday Spotify Songs dataset (accessed 04-09-2022)'
+  )
 #Loudness looks like a normal distribution with a very small standard deviation, though it is slightly skewed left. 
 
 ggplot(spotify_songs) +
   aes(x = danceability) +
-  geom_histogram()
+  geom_histogram() +
+  labs(
+    title = 'Danceability is normally distributed',
+    subtitle = 'Distribution of Danceability',
+    x = 'Danceability',
+    y = 'Count', 
+    caption = 'Tidy Tuesday Spotify Songs dataset (accessed 04-09-2022)'
+  )
 #Danceability looks like a normal distribution, slightly skewed left.
 
 ggplot(spotify_songs) +
   aes(x = valence) +
-  geom_histogram()
+  geom_histogram() +
+  labs(
+    title = 'Valence is normally distributed with a cutoff',
+    subtitle = 'Distribution of Valence',
+    x = 'Valence',
+    y = 'Count', 
+    caption = 'Tidy Tuesday Spotify Songs dataset (accessed 04-09-2022)'
+  )
 #Valence looks like a normal distribution that's cut off at 0 and 1.
 
 ggplot(spotify_songs) +
   aes(x = tempo) +
-  geom_histogram()
+  geom_histogram()  +
+  labs(
+    title = 'Tempo  is bimodal normally distributed',
+    subtitle = 'Distribution of Tempo',
+    x = 'Tempo',
+    y = 'Count', 
+    caption = 'Tidy Tuesday Spotify Songs dataset (accessed 04-09-2022)'
+  )
 #Tempo looks like a bimodal noraml distribution, with the 2 peaks being 2 means. 
 
 ggplot(spotify_songs) +
   aes(x = duration_ms) +
-  geom_histogram()
+  geom_histogram()  +
+  labs(
+    title = 'Duration is normally distributed, skewed to the right',
+    subtitle = 'Distribution of Duration',
+    x = 'Duration',
+    y = 'Count', 
+    caption = 'Tidy Tuesday Spotify Songs dataset (accessed 04-09-2022)'
+  )
 #Duration appears as a normal distribution with a skew to the right.
 
 ggplot(spotify_songs) +
   aes(x = key) +
-  geom_histogram()
+  geom_histogram()  +
+  labs(
+    title = 'Key can only be whole numbers',
+    subtitle = 'Distribution of Key',
+    x = 'Key',
+    y = 'Count', 
+    caption = 'Tidy Tuesday Spotify Songs dataset (accessed 04-09-2022)'
+  )
 # The key does not have values everywhere on the scale, it looks like only whole numbers are possible on the key. 
 
 ggplot(spotify_songs) +
   aes(x = mode) +
-  geom_histogram()
+  geom_histogram() +
+  labs(
+    title = 'Mode is either 1 (Major) or  0 (Minor)',
+    subtitle = 'Distribution of Mode',
+    x = 'Mode',
+    y = 'Count', 
+    caption = 'Tidy Tuesday Spotify Songs dataset (accessed 04-09-2022)'
+  )
 #  Mode only includes 0 or 1, nothing else.
 ```
 
 
-3.  How are `job_satisfaction` and `work_life_balance` distributed? Don't just report counts, but express categories as % of total
 4.  Is there any relationship between `valence` and `track_popularity`? `danceability` and `track_popularity` ?
 
 ```{r}
 ggplot(spotify_songs) +
   aes(valence, track_popularity) +
   geom_point() +
-  geom_smooth()
+  geom_smooth() +
+  labs(
+    title = 'Valence and track popularity appear unrelated',
+    subtitle = 'Scatterplot of Valence and popularity',
+    x = 'Valence',
+    y = 'Popularity', 
+    caption = 'Tidy Tuesday Spotify Songs dataset (accessed 04-09-2022)'
+  )
+
 cor(spotify_songs$valence, spotify_songs$track_popularity)
 # track popularity and valence do not appear to have a clear relationship, the values for both are spread out across the scatter plot and the correlation coefficient is very low.
 ```
+
+
+
 ```{r}
 ggplot(spotify_songs) +
   aes(danceability, track_popularity) +
   geom_point() +
-  geom_smooth()
+  geom_smooth() +
+  labs(
+    title = 'High danceability is related with a higher popularity',
+    subtitle = 'Scatterplot of danceability and popularity',
+    x = 'Danceability',
+    y = 'Popularity', 
+    caption = 'Tidy Tuesday Spotify Songs dataset (accessed 04-09-2022)'
+  )
+
 cor(spotify_songs$danceability, spotify_songs$track_popularity)
 # The correlation coefficient is again very low, but a much higher danceability is associated with a slightly higher popularity. 
 ```
@@ -621,26 +721,40 @@ spotify_songs %>%
   mutate(mode = factor(mode)) %>%
 ggplot() +
   aes(x = danceability, fill = mode) +
-  geom_histogram(alpha = 0.2, position = 'identity') 
+  geom_histogram(alpha = 0.2, position = 'identity') +
+  labs(
+    title = 'Danceability does not differ between major and minor',
+    subtitle = 'Histograms of danceability for major (1) and minor (0) songs',
+    x = 'Danceability',
+    y = 'Count', 
+    caption = 'Tidy Tuesday Spotify Songs dataset (accessed 04-09-2022)'
+  )
 
 mode1 <- filter(spotify_songs, mode == 1)
 mode0 <- filter(spotify_songs, mode == 0)
   
-z.test(mode1$danceability, mode0$danceability, alternative = 'greater', mu=0, sigma.x = StdDev(mode1$danceability), sigma.y = StdDev(mode0$danceability))
-# There appears to be no significant difference in danceability between major and minor modes.
+# There appears to be no significant difference in danceability between major and minor modes, as the mean appears in the same in both graphs and the spread does not appear different.
 ```
+
+
 ```{r}
 
 spotify_songs %>%
   mutate(mode = factor(mode)) %>%
 ggplot() +
   aes(x = track_popularity, fill = mode) +
-  geom_histogram(alpha = 0.2, position = 'identity') 
+  geom_histogram(alpha = 0.2, position = 'identity') +
+  labs(
+    title = 'Track popularity does not differ between major and minor',
+    subtitle = 'Histograms of Track popularity for major (1) and minor (0) songs',
+    x = 'Track popularity',
+    y = 'Count', 
+    caption = 'Tidy Tuesday Spotify Songs dataset (accessed 04-09-2022)'
+  )
 
 mode1 <- filter(spotify_songs, mode == 1)
 mode0 <- filter(spotify_songs, mode == 0)
   
-z.test(mode1$track_popularity, mode0$track_popularity, alternative = 'greater', mu=0, sigma.x = StdDev(mode1$track_popularity), sigma.y = StdDev(mode0$track_popularity))
 # There appears to be no significant difference in track_popularity between major and minor modes.
 ```
 
@@ -669,11 +783,21 @@ rent_cum_change <- rent %>%
 head(rent_cum_change)
 
 ```
+
+
+
 ```{r}
 ggplot(rent_cum_change) +
   aes(x = year, y = cum_change, color = city) +
   geom_line() + 
-  facet_grid( beds ~ city )
+  facet_grid( beds ~ city ) +
+  labs(
+    title = 'Cumulative % change in 0, 1, and 2-bed rentals in Bay Area',
+    subtitle = '2000-2018',
+    x = NULL,
+    y = NULL,
+    caption = 'Tidy Tuesday Spotify Songs dataset (accessed 04-09-2022)'
+  )
 ```
 
 
