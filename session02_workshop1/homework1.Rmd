@@ -288,7 +288,7 @@ ggplot(movies) + aes(rating) + geom_density() +
 > The number of facebook likes is not a good predictor of how much money a movie will make at the box office as movies with the same number of likes received by cast earned vastly different amounts.
 
 ```{r, gross_on_fblikes}
-
+# creating a scatterplot of the likes and revenue
 ggplot(movies) +
   aes(x = cast_facebook_likes, y = gross) +
   geom_point() +
@@ -303,12 +303,11 @@ ggplot(movies) +
 
 ```
 
-<!--  -   Examine the relationship between `gross` and `budget`. Produce a scatterplot and write one sentence discussing whether budget is likely to be a good predictor of how much money a movie will make at the box office.-->
 
-> Gross US Earnings could be predicted by looking at the movie's budget as the two variables display a positive relationship relationship.
+Gross US Earnings could be predicted by looking at the movie's budget as the two variables display a positive relationship relationship.
 
 ```{r, gross_on_budget}
-
+# creating a scatterplot to analyse the revenue and ratings
 ggplot(movies) +
   aes(x = budget, y = gross) +
   geom_point() +
@@ -323,13 +322,12 @@ ggplot(movies) +
     caption = 'Source: Kaggle IMDB 5000 movie dataset')
 ```
 
-<!--  -   Examine the relationship between `gross` and `rating`. Produce a scatterplot, faceted by `genre` and discuss whether IMDB ratings are likely to be a good predictor of how much money a movie will make at the box office. Is there anything strange in this dataset? -->
+In general, IMDB ratings could be used to predict the gross earnings of movies in the US - this positive relationship is particularly visible in the Action, Adventure, and Comedy genres. However, data in the 'movies' dataset is not uniformly distributed across genres, with some genres containing only a few data points, which prohibits a meaningful analysis of the relationship between IMDB ratings and gross earnings.
 
-> In general, IMDB ratings could be used to predict the gross earnings of movies in the US - this positive relationship is particularly visible in the Action, Adventure, and Comedy genres. However, data in the 'movies' dataset is not uniformly distributed across genres, with some genres containing only a few data points, which prohibits a meaningful analysis of the relationship between IMDB ratings and gross earnings.
->
-> Outliers are most visible in the Action, Drama, and Family genres. Some genres (Biography, Crime) only contain movies with a minimum rating of approximately 5.0 - it might be the case that movies of these types generally receive higher ratings. Lastly, genres such as Fantasy and Sci-Fi do not exhibit any relationship between IMDB ratings and gross earnings.
+Outliers are most visible in the Action, Drama, and Family genres. Some genres (Biography, Crime) only contain movies with a minimum rating of approximately 5.0 - it might be the case that movies of these types generally receive higher ratings. Lastly, genres such as Fantasy and Sci-Fi do not exhibit any relationship between IMDB ratings and gross earnings.
 
 ```{r, gross_on_rating}
+# Creating a scatterplot of revenue and rating, faceted by genre
 ggplot(movies) +
   aes(x = rating, y = gross, color = genre) +
   facet_wrap(vars(genre)) +
