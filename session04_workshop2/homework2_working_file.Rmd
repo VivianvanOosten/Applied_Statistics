@@ -1,6 +1,6 @@
 ---
 title: "Session 4: Homework 2"
-author: "Study group and members' names go here"
+author: "Group 12: Samarth Sharma, Vivian van Oosten, Anastasia Fu, Jaelyn Shi, Andrew Robak, Shivant Maharaj"
 date: "`r Sys.Date()`"
 output:
   html_document:
@@ -134,10 +134,10 @@ chronologically.
 > document, you must delete `eval=FALSE`, **not just here but in all
 > chunks were `eval=FALSE` appears.**
 
-```{r scatter_plot, eval=FALSE}
+```{r scatter_plot}
 
 tidyweather <- tidyweather %>%
-  mutate(date = ymd(paste(as.character(Year), Month, "1")),
+  mutate(date = ymd(paste(as.character(Year), month, "1")),
          month = month(date, label=TRUE),
          year = year(date))
 
@@ -183,7 +183,7 @@ We remove data before 1800 and before using `filter`. Then, we use the
 information on which period each observation belongs to. We can assign
 the different periods using `case_when()`.
 
-```{r intervals, eval=FALSE}
+```{r intervals }
 
 comparison <- tidyweather %>% 
   filter(Year>= 1881) %>%     #remove years prior to 1881
@@ -206,7 +206,7 @@ to study the distribution of monthly deviations (`delta`), grouped by
 the different time periods we are interested in. Set `fill` to
 `interval` to group and colour the data by different time periods.
 
-```{r density_plot, eval=FALSE}
+```{r density_plot }
 
 ggplot(comparison) +
   aes(x = delta, fill = interval)+
@@ -221,7 +221,7 @@ be interested in average annual anomalies. We can do this by using
 `group_by()` and `summarise()`, followed by a scatter plot to display
 the result.
 
-```{r averaging, eval=FALSE}
+```{r averaging }
 
 #creating yearly averages
 average_annual_anomaly <- tidyweather %>% 
@@ -265,7 +265,7 @@ with the `infer` package. Recall that the dataframe `comparison` has
 already grouped temperature anomalies according to time intervals; we
 are only interested in what is happening between 2011-present.
 
-```{r, calculate_CI_using_formula, eval=FALSE}
+```{r, calculate_CI_using_formula }
 
 formula_ci <- comparison %>% 
   filter(interval == '2011-present') %>% 
