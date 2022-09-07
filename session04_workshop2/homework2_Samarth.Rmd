@@ -105,12 +105,13 @@ You have two objectives in this section:
     `tidyweather`, name the variable containing the name of the month as
     `month`, and the temperature deviation values as `delta`.
 
-```{r tidyweather}
-
+```{r tidyweather}    
+#select(weather, 1:13)
 tidyweather <- select(weather, 1:13) %>% 
   pivot_longer(!Year, names_to = 'month', values_to = 'delta')
-head(tidyweather)
+tidyweather
   
+
 
 ```
 
@@ -137,7 +138,7 @@ chronologically.
 ```{r scatter_plot, eval=FALSE}
 
 tidyweather <- tidyweather %>%
-  mutate(date = ymd(paste(as.character(Year), Month, "1")),
+  mutate(date = ymd(paste(as.character(Year), month, "1")),
          month = month(date, label=TRUE),
          year = year(date))
 
@@ -158,7 +159,6 @@ that is, each month should be labeled "Jan", "Feb", "Mar" (full or
 abbreviated month names are fine), not `1`, `2`, `3`.
 
 ```{r facet_wrap, echo=FALSE}
-
 ggplot(tidyweather, aes(x= year, y = delta))+
   geom_point()+
   geom_smooth(color="red") +
@@ -167,6 +167,7 @@ ggplot(tidyweather, aes(x= year, y = delta))+
   labs (
     title = "Weather Anomalies"
   )
+#Your code goes here...
 
 ```
 
@@ -195,7 +196,7 @@ comparison <- tidyweather %>%
     Year %in% c(1981:2010) ~ "1981-2010",
     TRUE ~ "2011-present"
   ))
-
+comparison
 ```
 
 Inspect the `comparison` dataframe by clicking on it in the
@@ -207,7 +208,6 @@ the different time periods we are interested in. Set `fill` to
 `interval` to group and colour the data by different time periods.
 
 ```{r density_plot, eval=FALSE}
-
 ggplot(comparison) +
   aes(x = delta, fill = interval)+
   #facet_wrap(~month)+
@@ -241,6 +241,8 @@ ggplot(average_annual_anomaly) +
   aes(x = Year, y = yearly_mean)+
   geom_point()+
   geom_smooth(method = 'lm')
+    
+
   
   #change theme to theme_bw() to have white background + black frame around plot
                         
@@ -296,7 +298,6 @@ formula_ci_2 <- comparison %>%
 #print out formula_CI
 formula_ci
 formula_ci_2
-
 ```
 
 > What is the data showing us? Please type your answer after (and
