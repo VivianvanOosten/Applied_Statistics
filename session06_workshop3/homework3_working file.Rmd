@@ -72,11 +72,8 @@ ggplot(yrbss) +
 
 ```
 
-Next, consider the possible relationship between a high schooler's weight and their physical activity. Plotting the data is a useful first step because it helps us quickly visualize trends, identify strong associations, and develop research questions.
 
-Let's create a new variable in the dataframe `yrbss`, called `physical_3plus` , which will be `yes` if they are physically active for at least 3 days a week, and `no` otherwise. You may also want to calculate the number and % of those who are and are not active for more than 3 days. RUse the `count()` function and see if you get the same results as `group_by()... summarise()`
-
-> We consider the relationship between physical acitvity and weight. We will create a variable 'physical_3plus' that says whether a high schooler is physically active for at least 3 days a week. See below the number and % of students that are physically active. The count function and the 
+We consider the relationship between physical acitvity and weight. We will create a variable 'physical_3plus' that says whether a high schooler is physically active for at least 3 days a week. See below the number and % of students that are physically active. We have tested whether the count function and groupby-summarise give the same result for the count and the percentage, which is the case.
 
 ```{r, mutate_and_count}
 
@@ -99,9 +96,7 @@ count_active
 
 ```
 
-Can you provide a 95% confidence interval for the population proportion of high schools that are *NOT* active 3 or more days per week?
-
-> We have calculated a 95% confdence interval for the proportion of high schoolers who are not active 3 or more days a week, which is 0.3 - 0.326. This means the majority of people are active 3+ days a week. 
+We have calculated a 95% confidence interval for the proportion of high schoolers who are not active 3 or more days a week through bootstrapping with the infer package, which is 0.3 - 0.326. This means the majority of people are active 3+ days a week. 
 
 ```{r}
 
@@ -120,9 +115,9 @@ ci_proportion_activity
 
 
 
-Make a boxplot of `physical_3plus` vs. `weight`. Is there a relationship between these two variables? What did you expect and why?
 
-> We would have expected physical activity to be inversely correlated with weight, as activity should make you lose weight. However, it appears in the boxplot that this is not the case. We could consider that muscle is heavier than fat, and people who exercise often have more muscle.
+To analyse the relationship between weight and physical activity, we are plotting 2 boxplots, 1 for those who are physically active 3+ days a week and those who are not. We would have expected physical activity to be inversely correlated with weight, as activity generally makes you lose weight. However, it appears in the boxplots that this is not the case. To explain that physically active people are heavier, we can think of two things. Firstly, muscle is heavier than fat, and people who exercise often have more muscle. Secondly, people who are heavier might want to exercise more often to lose weight.
+
 
 ```{r, boxplot}
 
@@ -140,7 +135,7 @@ ggplot(df_active) +
 
 ## Confidence Interval
 
-Boxplots show how the medians of the two distributions compare, but we can also compare the means of the distributions using either a confidence interval or a hypothesis test. Note that when we calculate the mean, SD, etc. weight in these groups using the mean function, we must ignore any missing values by setting the `na.rm = TRUE`.
+Boxplots show how the medians of the two distributions compare, but we also want to compare the means and see if there is a statistical difference. First we calculate the 95% confidence interval and then do a hypothesis test to confirm the difference. 
 
 ```{r, ci_using_formulas}
 
@@ -157,11 +152,13 @@ means_active <- df_active %>%
 means_active
 ```
 
-There is an observed difference of about 1.77kg (68.44 - 66.67), and we notice that the two confidence intervals do not overlap. It seems that the difference is at least 95% statistically significant. Let us also conduct a hypothesis test.
+There is an observed difference of about 1.77kg (68.44 - 66.67), and we notice that the two confidence intervals do not overlap. It seems that the difference is at least 95% statistically significant. Let us also conduct a hypothesis test. 
 
 ## Hypothesis test with formula
 
-Write the null and alternative hypotheses for testing whether mean weights are different for those who exercise at least times a week and those who don't.
+We are now going to test whether there's a difference between the mean weights for those who are physically active at least 3x a week and those we don't. 
+Our null hypothesis is that there is no difference between the means. The alternative hypothesis is that there is a difference. 
+We perform a t-test below to assess these hypotheses.
 
 ```{r, t_test_using_R}
 
@@ -169,8 +166,9 @@ t.test( weight ~ physical_3plus, data = df_active)
 
 ```
 
-> According to the t-test, there is a signifcant difference between the weight of people with 3+ days of phsyical activity and those without. Those who have 3+ days of physical activity have a higher weight.
+According to the t-test, there is a signifcant difference between the weight of people with 3+ days of phsyical activity and those without. Those who have 3+ days of physical activity have a higher weight.
 
+> POINT OF PROGRESS FOR STORYTIME
 
 ## Hypothesis test with `infer`
 
