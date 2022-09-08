@@ -62,7 +62,29 @@ library(openintro)
 
 ```{r}
 
+library(gapminder)
 
+country_data <- gapminder %>% filter(country == "rwanda")
+
+gapminder %>% 
+  mutate(rwanda = ifelse(country == "Rwanda", TRUE, FALSE))
+
+my_colours <- c("grey90","#001e62","tomato")
+
+ggplot(country_data) + aes(x =  year, y = lifeExp) + scale_color_manual(values = my_colours) + geom_line()
+
+
+
+#ANSWER
+my_colours <- c('grey90','#001e62')
+
+df_rwanda <- gapminder %>% 
+  mutate(rwanda = ifelse(country == "Rwanda", TRUE, FALSE))
+
+  ggplot(df_rwanda) +
+  aes(x=year, y =lifeExp, colour = rwanda, group = country) +
+  geom_line() +
+  scale_color_manual(values = my_colours)
 
 ```
 
@@ -112,8 +134,9 @@ add_one(1)
 ```{r}
 set.seed = 42
 sim_data <- function() {
+tibble (x = rnorm(50, mean = 0, sd = 1), sex =  rep(c("male", "female"), 25), age = sample(25:50, size = 50, replace = TRUE))
+}
 
-  }
 sim_data()
 ```
 
@@ -137,15 +160,18 @@ select_gapminder(pop, year)
 ```{r}
 filter_summarise <- function(...) {
 
-  
-  
-  
+  gapminder %>% 
+    filter(...)
+    filter(...) %>% 
+    summarize(count = n(), mean = mean(lifeExp))
 }
-
 
 filter_summarise(year == 2002)
   
 filter_summarise(year == 2002, continent == "Africa")
+
+filter_summarise(year == 2002, continent == "Europe")
+
 ```
 
 
