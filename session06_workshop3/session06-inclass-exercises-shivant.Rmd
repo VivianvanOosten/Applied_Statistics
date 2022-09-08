@@ -162,11 +162,16 @@ filter_summarise <- function(...) {
 
   gapminder %>% 
     filter(...)
+    filter(...) %>% 
+    summarize(count = n(), mean = mean(lifeExp))
 }
 
 filter_summarise(year == 2002)
   
 filter_summarise(year == 2002, continent == "Africa")
+
+filter_summarise(year == 2002, continent == "Europe")
+
 ```
 
 

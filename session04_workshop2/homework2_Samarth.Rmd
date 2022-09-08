@@ -1,6 +1,6 @@
 ---
 title: "Session 4: Homework 2"
-author: "Group 12: Samarth Sharma, Vivian van Oosten, Anastasia Fu, Jaelyn Shi, Andrew Robak, Shivant Maharaj"
+author: "Study group and members' names go here"
 date: "`r Sys.Date()`"
 output:
   html_document:
@@ -105,12 +105,13 @@ You have two objectives in this section:
     `tidyweather`, name the variable containing the name of the month as
     `month`, and the temperature deviation values as `delta`.
 
-```{r tidyweather}
-
+```{r tidyweather}    
+#select(weather, 1:13)
 tidyweather <- select(weather, 1:13) %>% 
   pivot_longer(!Year, names_to = 'month', values_to = 'delta')
-head(tidyweather)
+tidyweather
   
+
 
 ```
 
@@ -134,7 +135,7 @@ chronologically.
 > document, you must delete `eval=FALSE`, **not just here but in all
 > chunks were `eval=FALSE` appears.**
 
-```{r scatter_plot}
+```{r scatter_plot, eval=FALSE}
 
 tidyweather <- tidyweather %>%
   mutate(date = ymd(paste(as.character(Year), month, "1")),
@@ -158,7 +159,6 @@ that is, each month should be labeled "Jan", "Feb", "Mar" (full or
 abbreviated month names are fine), not `1`, `2`, `3`.
 
 ```{r facet_wrap, echo=FALSE}
-
 ggplot(tidyweather, aes(x= year, y = delta))+
   geom_point()+
   geom_smooth(color="red") +
@@ -167,6 +167,7 @@ ggplot(tidyweather, aes(x= year, y = delta))+
   labs (
     title = "Weather Anomalies"
   )
+#Your code goes here...
 
 ```
 
@@ -183,7 +184,7 @@ We remove data before 1800 and before using `filter`. Then, we use the
 information on which period each observation belongs to. We can assign
 the different periods using `case_when()`.
 
-```{r intervals }
+```{r intervals, eval=FALSE}
 
 comparison <- tidyweather %>% 
   filter(Year>= 1881) %>%     #remove years prior to 1881
@@ -195,7 +196,7 @@ comparison <- tidyweather %>%
     Year %in% c(1981:2010) ~ "1981-2010",
     TRUE ~ "2011-present"
   ))
-
+comparison
 ```
 
 Inspect the `comparison` dataframe by clicking on it in the
@@ -206,8 +207,7 @@ to study the distribution of monthly deviations (`delta`), grouped by
 the different time periods we are interested in. Set `fill` to
 `interval` to group and colour the data by different time periods.
 
-```{r density_plot }
-
+```{r density_plot, eval=FALSE}
 ggplot(comparison) +
   aes(x = delta, fill = interval)+
   #facet_wrap(~month)+
@@ -221,7 +221,7 @@ be interested in average annual anomalies. We can do this by using
 `group_by()` and `summarise()`, followed by a scatter plot to display
 the result.
 
-```{r averaging }
+```{r averaging, eval=FALSE}
 
 #creating yearly averages
 average_annual_anomaly <- tidyweather %>% 
@@ -241,6 +241,8 @@ ggplot(average_annual_anomaly) +
   aes(x = Year, y = yearly_mean)+
   geom_point()+
   geom_smooth(method = 'lm')
+    
+
   
   #change theme to theme_bw() to have white background + black frame around plot
                         
@@ -265,7 +267,7 @@ with the `infer` package. Recall that the dataframe `comparison` has
 already grouped temperature anomalies according to time intervals; we
 are only interested in what is happening between 2011-present.
 
-```{r, calculate_CI_using_formula }
+```{r, calculate_CI_using_formula, eval=FALSE}
 
 formula_ci <- comparison %>% 
   filter(interval == '2011-present') %>% 
@@ -296,7 +298,6 @@ formula_ci_2 <- comparison %>%
 #print out formula_CI
 formula_ci
 formula_ci_2
-
 ```
 
 > What is the data showing us? Please type your answer after (and

@@ -1,6 +1,6 @@
 ---
 title: "Session 6: Homework 3"
-author: "Your name goes here"
+author: "Group 12: Samarth Sharma, Vivian van Oosten, Anastasia Fu, Jaelyn Shi, Andrew Robak, Shivant Maharaj"
 date: "`r Sys.Date()`"
 output:
   html_document:
@@ -65,25 +65,87 @@ Before you carry on with your analysis, it's is always a good idea to check with
 
 You will first start with analyzing the `weight` of participants in kilograms. Using visualization and summary statistics, describe the distribution of weights. How many observations are we missing weights from?
 
+> We will analyse the weight variable. To start off, we can see from the skim table that there's 1004 missing values in the column. The distribution of the remaining values can be seen in the histogram below. The distribution is skewed right, with a mean of 67.91 kilograms.
+
 ```{r, eda_on_weight}
+
+ggplot(yrbss) +
+  aes(x = weight) +
+  geom_histogram() +
+  theme_minimal()
+
 
 ```
 
 Next, consider the possible relationship between a high schooler's weight and their physical activity. Plotting the data is a useful first step because it helps us quickly visualize trends, identify strong associations, and develop research questions.
 
 Let's create a new variable in the dataframe `yrbss`, called `physical_3plus` , which will be `yes` if they are physically active for at least 3 days a week, and `no` otherwise. You may also want to calculate the number and % of those who are and are not active for more than 3 days. RUse the `count()` function and see if you get the same results as `group_by()... summarise()`
+<<<<<<< HEAD
+=======
+
+> 
+>>>>>>> 8f502fa86b22ef3d33f3bcee31ee60007cd8b701
 
 ```{r, mutate_and_count}
 
+df_active <- yrbss %>%
+  drop_na(physically_active_7d) %>%
+  mutate(physical_3plus = ifelse(physically_active_7d > 2, 'yes','no') )
 
+groupby_active <- df_active %>%
+  group_by(physical_3plus) %>%
+  summarise(nr_physical_3plus = n()) %>%
+  mutate(perc_physical_3plus = nr_physical_3plus / sum(nr_physical_3plus))
+
+groupby_active
+
+count_active <- df_active %>%
+  count(physical_3plus) %>%
+  mutate(perc_physical_3plus = n / sum(n))
+
+count_active
 
 ```
 
 Can you provide a 95% confidence interval for the population proportion of high schools that are *NOT* active 3 or more days per week?
 
+<<<<<<< HEAD
+=======
+> We have calculated a 95% confdence interval for the proportion of high schoolers who are not active 3 or more days a week, which is 0.3 - 0.326. This means the majority of people are active 3+ days a week. 
+
+```{r}
+
+library(infer)
+
+ci_proportion_activity <- df_active %>% 
+  mutate(physical_3plus = factor(physical_3plus)) %>%
+  specify(response = physical_3plus, success = 'no') %>% 
+  generate(type = 'bootstrap', reps = 1000) %>% 
+  calculate(stat = 'prop') %>% 
+  get_confidence_interval(level = 0.95)
+
+ci_proportion_activity
+
+```
+
+
+
+>>>>>>> 8f502fa86b22ef3d33f3bcee31ee60007cd8b701
 Make a boxplot of `physical_3plus` vs. `weight`. Is there a relationship between these two variables? What did you expect and why?
 
+> We would have expected physical activity to be inversely correlated with weight, as activity should make you lose weight. However, it appears in the boxplot that this is not the case. We could consider that muscle is heavier than fat, and people who exercise often have more muscle.
+
 ```{r, boxplot}
+
+ggplot(df_active) + 
+  aes(x = physical_3plus, y = weight) +
+  geom_boxplot() +
+  labs(
+    title = 'Physical activity linked to higher average weight',
+    y = 'Weight',
+    x = 'Physically active 3+ days'
+  ) +
+  coord_flip() 
 
 ```
 
@@ -93,6 +155,17 @@ Boxplots show how the medians of the two distributions compare, but we can also 
 
 ```{r, ci_using_formulas}
 
+means_active <- df_active %>%
+  group_by(physical_3plus) %>%
+  summarise(mean_weight = mean(weight, na.rm = TRUE),
+            std_weight = sd(weight, na.rm = TRUE),
+            count = n(), 
+            se = std_weight/sqrt(count),
+            critical_t = qt(0.975, count-1),
+            lower = mean_weight - critical_t * se,
+            upper = mean_weight + critical_t * se)
+
+means_active
 ```
 
 There is an observed difference of about 1.77kg (68.44 - 66.67), and we notice that the two confidence intervals do not overlap. It seems that the difference is at least 95% statistically significant. Let us also conduct a hypothesis test.
@@ -103,9 +176,16 @@ Write the null and alternative hypotheses for testing whether mean weights are d
 
 ```{r, t_test_using_R}
 
-t.test(weight ~ physical_3plus, data = yrbss)
+t.test( weight ~ physical_3plus, data = df_active)
+
 ```
 
+<<<<<<< HEAD
+=======
+> According to the t-test, there is a signifcant difference between the weight of people with 3+ days of phsyical activity and those without. Those who have 3+ days of physical activity have a higher weight.
+
+
+>>>>>>> 8f502fa86b22ef3d33f3bcee31ee60007cd8b701
 ## Hypothesis test with `infer`
 
 Next, we will introduce a new function, `hypothesize`, that falls into the infer workflow. You will use this method for conducting hypothesis tests.
@@ -113,7 +193,7 @@ Next, we will introduce a new function, `hypothesize`, that falls into the infer
 But first, we need to initialize the test, which we will save as `obs_diff`.
 
 ```{r, calc_obs_difference}
-obs_diff <- yrbss %>%
+obs_diff <- df_active %>%
   specify(weight ~ physical_3plus) %>%
   calculate(stat = "diff in means", order = c("yes", "no"))
 
@@ -125,7 +205,7 @@ After you have initialized the test, you need to simulate the test on the null d
 
 ```{r, hypothesis_testing_using_infer_package}
 
-null_dist <- yrbss %>%
+null_dist <- df_active %>%
   # specify variables
   specify(weight ~ physical_3plus) %>%
   
@@ -138,8 +218,15 @@ null_dist <- yrbss %>%
   # calculate statistic of difference, namely "diff in means"
   calculate(stat = "diff in means", order = c("yes", "no"))
 
+null_dist
+
+visualise(null_dist) 
+
+<<<<<<< HEAD
+=======
 ```
 
+>>>>>>> 8f502fa86b22ef3d33f3bcee31ee60007cd8b701
 Here, `hypothesize` is used to set the null hypothesis as a test for independence, i.e., that there is no difference between the two population means. In one sample cases, the null argument can be set to *point* to test a hypothesis relative to a point estimate.
 
 Also, note that the `type` argument within generate is set to permute, which is the argument when generating a null distribution for a hypothesis test.
@@ -178,7 +265,7 @@ knitr::include_graphics(here::here("images", "directors.png"), error = FALSE)
 
 First, I would like you to reproduce this graph. You may find `geom_errorbar()` and `geom_rect()` useful.
 
-In addition, you will run a hpothesis test. You should use both the `t.test` command and the `infer` package to simulate from a null distribution, where you assume zero difference between the two.
+In addition, you will run a hypothesis test. You should use both the `t.test` command and the `infer` package to simulate from a null distribution, where you assume zero difference between the two.
 
 > Before anything, write down the null and alternative hypotheses, as well as the resulting test statistic and the associated t-stat or p-value. At the end of the day, what do you conclude?
 
@@ -193,7 +280,89 @@ Your R code and analysis should go here. If you want to insert a blank chunk of 
 
 ```{r}
 
+chosen_directors <- c('Tim Burton','Steven Spielberg')
+
+directors <- movies %>% 
+  filter(director %in% chosen_directors) %>%
+  group_by(director) %>%
+  summarise(mean_rating = mean(rating),
+            sd_rating = sd(rating),
+            count = n(),
+            t_critical = qt(0.975, count-1),
+            se_rating = sd_rating/sqrt(count),
+            margin_of_error = t_critical * se_rating,
+            lower = mean_rating - margin_of_error,
+            upper = mean_rating + margin_of_error) %>%
+  mutate(labels = round(mean_rating, 2))
+
+directors
+
+
+ggplot(data = directors) +
+  aes(y = director) +
+  geom_errorbarh(aes(xmin = lower, xmax = upper, color = director), size = 2, height = 0.1) +
+  geom_point(aes(x = mean_rating, color = director), size = 5) +
+  geom_rect(aes(xmin = 7.27, xmax = 7.33, ymin=0,ymax=3), fill = 'grey70', alpha=0.5) +
+  geom_text(aes(x = mean_rating, label = labels), vjust = 0, nudge_y = 0.05, overlap=FALSE) +
+  labs(
+    title = 'Do Tim Burton and Steven Spielberg have the same mean IMDB rating?',
+    subtitle = '95% confidence intervals overlap',
+    x = 'Rating',
+    y = NULL
+  ) +
+  theme_minimal()
+
+
 ```
+
+<<<<<<< HEAD
+# Omega Group plc- Pay Discrimination
+
+At the last board meeting of Omega Group Plc., the headquarters of a large multinational company, the issue was raised that women were being discriminated in the company, in the sense that the salaries were not the same for male and female executives. A quick analysis of a sample of 50 employees (of which 24 men and 26 women) revealed that the average salary for men was about 8,700 higher than for women. This seemed like a considerable difference, so it was decided that a further analysis of the company salaries was warranted.
+
+You are asked to carry out the analysis. The objective is to find out whether there is indeed a significant difference between the salaries of men and women, and whether the difference is due to discrimination or whether it is based on another, possibly valid, determining factor.
+=======
+In addition, you will run a hypothesis test. You should use both the `t.test` command and the `infer` package to simulate from a null distribution, where you assume zero difference between the two.
+
+> Before anything, write down the null and alternative hypotheses, as well as the resulting test statistic and the associated t-stat or p-value. At the end of the day, what do you conclude
+
+Our null hypothesis is that the means of the ratings of their films is the same.
+The alternative hypothesis is that there is a difference between the means of the ratings of Tim Burtons and Steven Spielbergs films.
+We will be using the t-statistic for the difference between the means. We are looking for a p-value smaller than 0.05 or a t-statistic bigger than 1.75 or smaller than -1.75 (based on df = 15 and p = 0.05). We have chosen the degrees of freedom as the smallest count - 1, which was 16 for Tim Burton.
+
+```{r}
+df_directors <- movies  %>%
+  filter(director %in% chosen_directors)
+
+t.test(rating ~ director, data = df_directors)
+>>>>>>> 8f502fa86b22ef3d33f3bcee31ee60007cd8b701
+
+
+<<<<<<< HEAD
+=======
+directors_infer <- df_directors %>%
+  # specify variables
+  specify(rating ~ director) %>%
+  
+  # assume independence, i.e, there is no difference
+  hypothesize(null = "independence") %>%
+  
+  # generate 1000 reps, of type "permute"
+  generate(reps = 1000, type = "permute") %>%
+  
+  # calculate statistic of difference, namely "diff in means"
+  calculate(stat = "diff in means", order = chosen_directors)
+
+directors_infer %>%
+  get_p_value(obs_stat = obs_diff, direction = "two-sided")
+
+
+```
+
+
+According to both the t.test and the bootstrapped result, there is a signficant difference in the ratings of the movies of Tim Burton and Steven Spielberg. We see that Tim has a lower mean rating than Steven. The p-value for the t.test was 0.01 and the p-value for infer was 0. 
+
+
 
 # Omega Group plc- Pay Discrimination
 
@@ -203,6 +372,7 @@ You are asked to carry out the analysis. The objective is to find out whether th
 
 ## Loading the data
 
+>>>>>>> 8f502fa86b22ef3d33f3bcee31ee60007cd8b701
 ```{r load_omega_data}
 omega <- read_csv(here::here("data", "omega.csv"))
 glimpse(omega) # examine the data frame
@@ -288,6 +458,7 @@ favstats (experience ~ gender, data=omega)
 ```
 
 Based on this evidence, can you conclude that there is a significant difference between the experience of the male and female executives? Perform similar analyses as in the previous section. Does your conclusion validate or endanger your conclusion about the difference in male and female salaries?
+<<<<<<< HEAD
 
 ```{r, confint_single_valiables}
 # Summary Statistics of salary by gender
@@ -313,6 +484,8 @@ summary_stats
 
 
 ```
+=======
+>>>>>>> 8f502fa86b22ef3d33f3bcee31ee60007cd8b701
 
 ## Relationship Salary - Experience ?
 
@@ -374,12 +547,15 @@ ggplot(filtered_brexit_data) +
 
 #brexit_results
 
+<<<<<<< HEAD
 
 #ggplot(brexit_results) + aes(x = )
 
 
 ```
 
+=======
+>>>>>>> 8f502fa86b22ef3d33f3bcee31ee60007cd8b701
 # Challenge 2:GDP components over time and among countries
 
 At the risk of oversimplifying things, the main components of gross domestic product, GDP are personal consumption (C), business investment (I), government spending (G) and net exports (exports - imports). You can read more about GDP and the different approaches in calculating at the [Wikipedia GDP page](https://en.wikipedia.org/wiki/Gross_domestic_product).
@@ -436,9 +612,15 @@ There is a lot of explanatory text, comments, etc. You do not need these, so del
 -   Who did you collaborate with: TYPE NAMES HERE
 -   Approximately how much time did you spend on this problem set: ANSWER HERE
 -   What, if anything, gave you the most trouble: ANSWER HERE
+<<<<<<< HEAD
 
 **Please seek out help when you need it,** and remember the [15-minute rule](https://mam2022.netlify.app/syllabus/#the-15-minute-rule){target="_blank"}. You know enough R (and have enough examples of code from class and your readings) to be able to do this. If you get stuck, ask for help from others, post a question on Slack-- and remember that I am here to help too!
 
+=======
+
+**Please seek out help when you need it,** and remember the [15-minute rule](https://mam2022.netlify.app/syllabus/#the-15-minute-rule){target="_blank"}. You know enough R (and have enough examples of code from class and your readings) to be able to do this. If you get stuck, ask for help from others, post a question on Slack-- and remember that I am here to help too!
+
+>>>>>>> 8f502fa86b22ef3d33f3bcee31ee60007cd8b701
 > As a true test to yourself, do you understand the code you submitted and are you able to explain it to someone else?
 
 # Rubric
