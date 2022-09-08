@@ -75,11 +75,8 @@ ggplot(yrbss) +
 Next, consider the possible relationship between a high schooler's weight and their physical activity. Plotting the data is a useful first step because it helps us quickly visualize trends, identify strong associations, and develop research questions.
 
 Let's create a new variable in the dataframe `yrbss`, called `physical_3plus` , which will be `yes` if they are physically active for at least 3 days a week, and `no` otherwise. You may also want to calculate the number and % of those who are and are not active for more than 3 days. RUse the `count()` function and see if you get the same results as `group_by()... summarise()`
-<<<<<<< HEAD
-=======
 
-> 
->>>>>>> 8f502fa86b22ef3d33f3bcee31ee60007cd8b701
+> We consider the relationship between physical acitvity and weight. We will create a variable 'physical_3plus' that says whether a high schooler is physically active for at least 3 days a week. See below the number and % of students that are physically active. The count function and the 
 
 ```{r, mutate_and_count}
 
@@ -104,8 +101,6 @@ count_active
 
 Can you provide a 95% confidence interval for the population proportion of high schools that are *NOT* active 3 or more days per week?
 
-<<<<<<< HEAD
-=======
 > We have calculated a 95% confdence interval for the proportion of high schoolers who are not active 3 or more days a week, which is 0.3 - 0.326. This means the majority of people are active 3+ days a week. 
 
 ```{r}
@@ -125,7 +120,6 @@ ci_proportion_activity
 
 
 
->>>>>>> 8f502fa86b22ef3d33f3bcee31ee60007cd8b701
 Make a boxplot of `physical_3plus` vs. `weight`. Is there a relationship between these two variables? What did you expect and why?
 
 > We would have expected physical activity to be inversely correlated with weight, as activity should make you lose weight. However, it appears in the boxplot that this is not the case. We could consider that muscle is heavier than fat, and people who exercise often have more muscle.
@@ -175,12 +169,9 @@ t.test( weight ~ physical_3plus, data = df_active)
 
 ```
 
-<<<<<<< HEAD
-=======
 > According to the t-test, there is a signifcant difference between the weight of people with 3+ days of phsyical activity and those without. Those who have 3+ days of physical activity have a higher weight.
 
 
->>>>>>> 8f502fa86b22ef3d33f3bcee31ee60007cd8b701
 ## Hypothesis test with `infer`
 
 Next, we will introduce a new function, `hypothesize`, that falls into the infer workflow. You will use this method for conducting hypothesis tests.
@@ -217,11 +208,8 @@ null_dist
 
 visualise(null_dist) 
 
-<<<<<<< HEAD
-=======
 ```
 
->>>>>>> 8f502fa86b22ef3d33f3bcee31ee60007cd8b701
 Here, `hypothesize` is used to set the null hypothesis as a test for independence, i.e., that there is no difference between the two population means. In one sample cases, the null argument can be set to *point* to test a hypothesis relative to a point estimate.
 
 Also, note that the `type` argument within generate is set to permute, which is the argument when generating a null distribution for a hypothesis test.
@@ -310,13 +298,6 @@ ggplot(data = directors) +
 
 ```
 
-<<<<<<< HEAD
-# Omega Group plc- Pay Discrimination
-
-At the last board meeting of Omega Group Plc., the headquarters of a large multinational company, the issue was raised that women were being discriminated in the company, in the sense that the salaries were not the same for male and female executives. A quick analysis of a sample of 50 employees (of which 24 men and 26 women) revealed that the average salary for men was about 8,700 higher than for women. This seemed like a considerable difference, so it was decided that a further analysis of the company salaries was warranted.
-
-You are asked to carry out the analysis. The objective is to find out whether there is indeed a significant difference between the salaries of men and women, and whether the difference is due to discrimination or whether it is based on another, possibly valid, determining factor.
-=======
 In addition, you will run a hypothesis test. You should use both the `t.test` command and the `infer` package to simulate from a null distribution, where you assume zero difference between the two.
 
 > Before anything, write down the null and alternative hypotheses, as well as the resulting test statistic and the associated t-stat or p-value. At the end of the day, what do you conclude
@@ -330,11 +311,8 @@ df_directors <- movies  %>%
   filter(director %in% chosen_directors)
 
 t.test(rating ~ director, data = df_directors)
->>>>>>> 8f502fa86b22ef3d33f3bcee31ee60007cd8b701
 
 
-<<<<<<< HEAD
-=======
 directors_infer <- df_directors %>%
   # specify variables
   specify(rating ~ director) %>%
@@ -367,11 +345,9 @@ You are asked to carry out the analysis. The objective is to find out whether th
 
 ## Loading the data
 
->>>>>>> 8f502fa86b22ef3d33f3bcee31ee60007cd8b701
 ```{r load_omega_data}
 omega <- read_csv(here::here("data", "omega.csv"))
 glimpse(omega) # examine the data frame
-skimr::skim(omega)
 ```
 
 ## Relationship Salary - Gender ?
@@ -386,21 +362,7 @@ Calculate summary statistics on salary by gender. Also, create and print a dataf
 
 ```{r, confint_single_valiables}
 # Summary Statistics of salary by gender
-mosaic::favstats (salary ~ gender, data=omega) 
-
-summary_stats <- omega %>% 
-  group_by(gender) %>% 
-  summarise(mean_salary = mean(salary),
-            sd_salary = sd(salary),
-            count = n(),
-            t_critical = qt(0.975, count-1),
-            se_salary = sd(salary)/sqrt(count),
-            margin_of_error = t_critical * se_salary,
-            salary_low = mean_salary - margin_of_error,
-            salary_high = mean_salary + margin_of_error)
-
-summary_stats
-  
+mosaic::favstats (salary ~ gender, data=omega)
 
 # Dataframe with two rows (male-female) and having as columns gender, mean, SD, sample size, 
 # the t-critical value, the standard error, the margin of error, 
@@ -416,27 +378,9 @@ You can also run a hypothesis testing, assuming as a null hypothesis that the me
 ```{r, hypothesis_testing}
 # hypothesis testing using t.test() 
 
-t.test(salary ~ gender, data = omega)
 
 # hypothesis testing using infer package
 
-library(infer)
-set.seed(1234)
-infer_stats <- omega %>% 
-  specify(salary ~ gender) %>% 
-  hypothesize(null = "independence",) %>% 
-  generate(reps = 1000, type ="permute") %>% 
-  calculate(stat = "diff in means", order = c("male", "female"))
-
-visualize(infer_stats)
-
-percentile_ci <- infer_stats %>% get_confidence_interval(level = 0.95, type = "percentile")
-
-percentile_ci
-
-
-#infer_stats
-  
 
 ```
 
@@ -453,34 +397,6 @@ favstats (experience ~ gender, data=omega)
 ```
 
 Based on this evidence, can you conclude that there is a significant difference between the experience of the male and female executives? Perform similar analyses as in the previous section. Does your conclusion validate or endanger your conclusion about the difference in male and female salaries?
-<<<<<<< HEAD
-
-```{r, confint_single_valiables}
-# Summary Statistics of salary by gender
-mosaic::favstats (salary ~ gender, data=omega) 
-
-summary_stats <- omega %>% 
-  group_by(gender) %>% 
-  summarise(mean_experience = mean(experience),
-            sd_experience = sd(experience),
-            count = n(),
-            t_critical = qt(0.975, count-1),
-            se_experience = sd(experience)/sqrt(count),
-            margin_of_error = t_critical * se_experience,
-            experience_low = mean_experience - margin_of_error,
-            experience_high = mean_experience + margin_of_error)
-
-summary_stats
-  
-
-# Dataframe with two rows (male-female) and having as columns gender, mean, SD, sample size, 
-# the t-critical value, the standard error, the margin of error, 
-# and the low/high endpoints of a 95% condifence interval
-
-
-```
-=======
->>>>>>> 8f502fa86b22ef3d33f3bcee31ee60007cd8b701
 
 ## Relationship Salary - Experience ?
 
@@ -489,10 +405,6 @@ Someone at the meeting argues that clearly, a more thorough analysis of the rela
 Analyse the relationship between salary and experience. Draw a scatterplot to visually inspect the data
 
 ```{r, salary_exp_scatter}
-ggplot(omega)+
-  aes(x = salary, y = experience, color = gender)+
-  geom_point() +
-  geom_smooth()
 
 
 ```
@@ -516,41 +428,8 @@ Using your data manipulation and visualisation skills, please use the Brexit res
 
 ```{r brexit_challenge, echo=FALSE, out.width="100%"}
 knitr::include_graphics(here::here("images", "brexit.png"), error = FALSE)
-
-# read data directly off github repo
-brexit_results <- read_csv("https://raw.githubusercontent.com/kostis-christodoulou/am01/master/data/brexit_results.csv")
-
-brexit_results
-glimpse(brexit_results)
-skimr::skim(brexit_results)
-
-filtered_brexit_data <- brexit_results %>%  
-  select(leave_share, con_2015, lab_2015, ld_2015, ukip_2015) %>% 
-  pivot_longer(cols = 2:5, names_to = "party", values_to = "percentage")
-
-#filtered_brexit_data
-
-ggplot(filtered_brexit_data) + 
-  aes(x = percentage, y = leave_share, colour = party) + 
-  geom_point(alpha = 0.35) + 
-  geom_smooth(method = "lm") +
-  scale_color_manual(breaks = c("con_2015", "lab_2015", "ld_2015", "ukip_2015"), values=c("#0087DC", "#E4003B", "#FAA61A", "#6D3177")) +
-  labs(x = "Party % in the UK 2015 general election", y = "Party % in the 2016 Brexit referendum", title = "How political affiliation translated to Brexit Voting")
-
-
-
-
-#brexit_results
-
-<<<<<<< HEAD
-
-#ggplot(brexit_results) + aes(x = )
-
-
 ```
 
-=======
->>>>>>> 8f502fa86b22ef3d33f3bcee31ee60007cd8b701
 # Challenge 2:GDP components over time and among countries
 
 At the risk of oversimplifying things, the main components of gross domestic product, GDP are personal consumption (C), business investment (I), government spending (G) and net exports (exports - imports). You can read more about GDP and the different approaches in calculating at the [Wikipedia GDP page](https://en.wikipedia.org/wiki/Gross_domestic_product).
@@ -607,15 +486,9 @@ There is a lot of explanatory text, comments, etc. You do not need these, so del
 -   Who did you collaborate with: TYPE NAMES HERE
 -   Approximately how much time did you spend on this problem set: ANSWER HERE
 -   What, if anything, gave you the most trouble: ANSWER HERE
-<<<<<<< HEAD
 
 **Please seek out help when you need it,** and remember the [15-minute rule](https://mam2022.netlify.app/syllabus/#the-15-minute-rule){target="_blank"}. You know enough R (and have enough examples of code from class and your readings) to be able to do this. If you get stuck, ask for help from others, post a question on Slack-- and remember that I am here to help too!
 
-=======
-
-**Please seek out help when you need it,** and remember the [15-minute rule](https://mam2022.netlify.app/syllabus/#the-15-minute-rule){target="_blank"}. You know enough R (and have enough examples of code from class and your readings) to be able to do this. If you get stuck, ask for help from others, post a question on Slack-- and remember that I am here to help too!
-
->>>>>>> 8f502fa86b22ef3d33f3bcee31ee60007cd8b701
 > As a true test to yourself, do you understand the code you submitted and are you able to explain it to someone else?
 
 # Rubric
