@@ -166,15 +166,13 @@ t.test( weight ~ physical_3plus, data = df_active)
 
 ```
 
-According to the t-test, there is a signifcant difference between the weight of people with 3+ days of phsyical activity and those without. Those who have 3+ days of physical activity have a higher weight.
+According to the t-test, there is a significant difference between the weight of people with 3+ days of phsyical activity and those without. Those who have 3+ days of physical activity have a higher weight.
 
 > POINT OF PROGRESS FOR STORYTIME
 
 ## Hypothesis test with `infer`
 
-Next, we will introduce a new function, `hypothesize`, that falls into the infer workflow. You will use this method for conducting hypothesis tests.
-
-But first, we need to initialize the test, which we will save as `obs_diff`.
+Next, we will use the infer package to do a bootstrap simulation of the analysis. This will be used to calculate the difference in means.
 
 ```{r, calc_obs_difference}
 obs_diff <- df_active %>%
@@ -183,9 +181,6 @@ obs_diff <- df_active %>%
 
 ```
 
-Notice how you can use the functions specify and calculate again like you did for calculating confidence intervals. Here, though, the statistic you are searching for is the difference in means, with the order being yes - no != 0.
-
-After you have initialized the test, you need to simulate the test on the null distribution, which we will save as null.
 
 ```{r, hypothesis_testing_using_infer_package}
 
@@ -208,11 +203,10 @@ visualise(null_dist)
 
 ```
 
-Here, `hypothesize` is used to set the null hypothesis as a test for independence, i.e., that there is no difference between the two population means. In one sample cases, the null argument can be set to *point* to test a hypothesis relative to a point estimate.
+We have used `hypothesize` to set the null hypothesis as a test for independence, i.e. that there is no difference between the two mean
+Our null hypothesis (that there is no difference between the two means) has been set using the hypothesize function.
+The alternative hypothesis is that there is a difference in weight between those who exercise three or more days a week and those who don't. 
 
-Also, note that the `type` argument within generate is set to permute, which is the argument when generating a null distribution for a hypothesis test.
-
-We can visualize this null distribution with the following code:
 
 ```{r}
 ggplot(data = null_dist, aes(x = stat)) +
@@ -220,9 +214,10 @@ ggplot(data = null_dist, aes(x = stat)) +
 
 ```
 
-Now that the test is initialized and the null distribution formed, we can visualise to see how many of these null permutations have a difference of at least `obs_stat` of `r obs_diff %>% pull() %>% round(2)`?
+After this visualisation, we need to find the p-value associated with this statistical test to determine whether there is a statistically significant difference.
 
-We can also calculate the p-value for your hypothesis test using the function `infer::get_p_value()`.
+See below the visualisation of the p-value on top of the distribution. The p-value is also printed, which is 0 in this case. That means that there is a significant difference between the two means.
+
 
 ```{r}
 
@@ -234,30 +229,20 @@ null_dist %>%
 
 ```
 
-This the standard workflow for performing hypothesis tests.
 
 # IMDB ratings: Differences between directors
 
-Recall the IMBD ratings data. I would like you to explore whether the mean IMDB rating for Steven Spielberg and Tim Burton are the same or not. I have already calculated the confidence intervals for the mean ratings of these two directors and as you can see they overlap.
+We have a dataset containing a few thousand movies and their IMBD ratings. We want to explore whether movies directed by Steven Spielberg and Tim Burton are rated the same.
 
-```{r directors, echo=FALSE, out.width="100%"}
-knitr::include_graphics(here::here("images", "directors.png"), error = FALSE)
-```
-
-First, I would like you to reproduce this graph. You may find `geom_errorbar()` and `geom_rect()` useful.
-
-In addition, you will run a hypothesis test. You should use both the `t.test` command and the `infer` package to simulate from a null distribution, where you assume zero difference between the two.
-
-> Before anything, write down the null and alternative hypotheses, as well as the resulting test statistic and the associated t-stat or p-value. At the end of the day, what do you conclude?
-
-You can load the data and examine its structure
+We have loaded the data and shown a glimpse of it below.
 
 ```{r load-movies-data}
 movies <- read_csv(here::here("data", "movies.csv"))
 glimpse(movies)
 ```
 
-Your R code and analysis should go here. If you want to insert a blank chunk of R code you can just hit `Ctrl/Cmd+Alt+I`
+To start assessing this, we create a dataframe with the 95% confidence interval for the mean of the rating for each of the directors, using the t-statistic.
+Then we plot the confidence intervals on the same graph to see if they overlap a lot.
 
 ```{r}
 
@@ -296,9 +281,7 @@ ggplot(data = directors) +
 
 ```
 
-In addition, you will run a hypothesis test. You should use both the `t.test` command and the `infer` package to simulate from a null distribution, where you assume zero difference between the two.
-
-> Before anything, write down the null and alternative hypotheses, as well as the resulting test statistic and the associated t-stat or p-value. At the end of the day, what do you conclude
+Seeing that the two intervals overalp in the grey highlighted area, we need to also conduct a statistical test to see if the means are statistically significantly different. For this, we run a t-test and use the infer package to bootstrap the data as well. 
 
 Our null hypothesis is that the means of the ratings of their films is the same.
 The alternative hypothesis is that there is a difference between the means of the ratings of Tim Burtons and Steven Spielbergs films.
