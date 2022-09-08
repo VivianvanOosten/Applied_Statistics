@@ -268,8 +268,10 @@ Your R code and analysis should go here. If you want to insert a blank chunk of 
 
 ```{r}
 
+chosen_directors <- c('Tim Burton','Steven Spielberg')
+
 directors <- movies %>% 
-  filter(director %in% c('Tim Burton','Steven Spielberg')) %>%
+  filter(director %in% chosen_directors) %>%
   group_by(director) %>%
   summarise(mean_rating = mean(rating),
             sd_rating = sd(rating),
@@ -289,18 +291,56 @@ ggplot(data = directors) +
   geom_errorbarh(aes(xmin = lower, xmax = upper, color = director), size = 2, height = 0.1) +
   geom_point(aes(x = mean_rating, color = director), size = 5) +
   geom_rect(aes(xmin = 7.27, xmax = 7.33, ymin=0,ymax=3), fill = 'grey70', alpha=0.5) +
+  geom_text(aes(x = mean_rating, label = labels), vjust = 0, nudge_y = 0.05, overlap=FALSE) +
   labs(
     title = 'Do Tim Burton and Steven Spielberg have the same mean IMDB rating?',
     subtitle = '95% confidence intervals overlap',
     x = 'Rating',
     y = NULL
   ) +
-  geom_text(aes(x = mean_rating, label = labels), vjust = 0, nudge_y = 0.05, overlap=FALSE) +
   theme_minimal()
-  
 
 
 ```
+
+In addition, you will run a hypothesis test. You should use both the `t.test` command and the `infer` package to simulate from a null distribution, where you assume zero difference between the two.
+
+> Before anything, write down the null and alternative hypotheses, as well as the resulting test statistic and the associated t-stat or p-value. At the end of the day, what do you conclude
+
+Our null hypothesis is that the means of the ratings of their films is the same.
+The alternative hypothesis is that there is a difference between the means of the ratings of Tim Burtons and Steven Spielbergs films.
+We will be using the t-statistic for the difference between the means. We are looking for a p-value smaller than 0.05 or a t-statistic bigger than 1.75 or smaller than -1.75 (based on df = 15 and p = 0.05). We have chosen the degrees of freedom as the smallest count - 1, which was 16 for Tim Burton.
+
+```{r}
+df_directors <- movies  %>%
+  filter(director %in% chosen_directors)
+
+t.test(rating ~ director, data = df_directors)
+
+
+directors_infer <- df_directors %>%
+  # specify variables
+  specify(rating ~ director) %>%
+  
+  # assume independence, i.e, there is no difference
+  hypothesize(null = "independence") %>%
+  
+  # generate 1000 reps, of type "permute"
+  generate(reps = 1000, type = "permute") %>%
+  
+  # calculate statistic of difference, namely "diff in means"
+  calculate(stat = "diff in means", order = chosen_directors)
+
+directors_infer %>%
+  get_p_value(obs_stat = obs_diff, direction = "two-sided")
+
+
+```
+
+
+According to both the t.test and the bootstrapped result, there is a signficant difference in the ratings of the movies of Tim Burton and Steven Spielberg. We see that Tim has a lower mean rating than Steven. The p-value for the t.test was 0.01 and the p-value for infer was 0. 
+
+
 
 # Omega Group plc- Pay Discrimination
 
