@@ -341,9 +341,9 @@ Note that you can perform different types of analyses, and check whether they al
 
 . Confidence intervals . Hypothesis testing . Correlation analysis . Regression
 
-Calculate summary statistics on salary by gender. Also, create and print a dataframe where, for each gender, you show the mean, SD, sample size, the t-critical, the SE, the margin of error, and the low/high endpoints of a 95% condifence interval
+Calculate summary statistics on salary by gender. Also, create and print a dataframe where, for each gender, you show the mean, SD, sample size, the t-critical, the SE, the margin of error, and the low/high endpoints of a 95% confidence interval
 
-We have constructed a visualisation that shows the salary trend between male and female employees:
+We have constructed a visualization that shows the salary trend between male and female employees:
 
 ```{r, salary_visualisation}
 
@@ -354,7 +354,7 @@ ggplot(omega) +
   labs (x = "Salary", y = "Gender", caption = "Source: Omega Plc salary data", title = "Male employees at Omega Plc have a higher salary than females", subtitle = "Boxplot showing the salary trend between males and females at Omega Plc")
 ```
 
-The above graph shows a visual difference between the average distribtions of salary between female and male salary's for Omega Plc. The group decided to extrapolate the data and construct tables depict these initial findings.
+The above graph shows a visual difference between the average distributions of salary between female and male salary's for Omega Plc. The group decided to extrapolate the data and construct tables depict these initial findings.
 
 ```{r, salary_table}
 # Summary Statistics of salary by gender
@@ -402,7 +402,7 @@ The T Test package was used to assess if there is a true difference in the salar
 
 ```{r, hypothesis_testing_ttest}
 # hypothesis testing using t.test() 
-
+t.test(salary ~ gender, data = omega)
 
 ```
 
@@ -412,12 +412,19 @@ We also ran a hypothesis test, assuming that the mean difference in salaries is 
 
 ```{r, hypothesis_testing_infer}
 # hypothesis testing using infer package
-
+library(infer)
+set.seed(1234)
+infer_stats <- omega %>% 
+  specify(salary ~ gender) %>% 
+  hypothesize(null = "independence",) %>% 
+  generate(reps = 1000, type ="permute") %>% 
+  calculate(stat = "diff in means", order = c("male", "female"))
 
 percentile_ci <- infer_stats %>% get_confidence_interval(level = 0.95, type = "percentile")
 
 visualize(infer_stats) + shade_p_value(obs_stat = obs_diff, direction = "two-sided")
 percentile_ci
+
 
 ```
 
@@ -458,8 +465,6 @@ t.test(experience ~ gender, data = omega)
 ```
 
 Further analysis was conducted in the form of a T Test to assess the if there is any significant differences in experience between genders. The following test show the statistical variables for Omega Plc.The findings show that there is a significant difference in the experience between males and females from Omega Plc, shown by the observed t-value is greater than 1.96 and a small p-value. This finding assists in validating the pervious observation - as the average experience of males suggests reason as to why the salaries of genders are different.
-
-```
 
 Based on this evidence, can you conclude that there is a significant difference between the experience of the male and female executives? Perform similar analyses as in the previous section. Does your conclusion validate or endanger your conclusion about the difference in male and female salaries?
 
