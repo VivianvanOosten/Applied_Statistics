@@ -57,7 +57,6 @@ glimpse(yrbss)
 skimr::skim(yrbss)
 ```
 
-
 ## Exploratory Data Analysis
 
 We will analyse the weight variable and see if exercise influences the weight of participants. To start off, we can see from the skim table that there's 1004 missing values in the column. The distribution of the remaining values can be seen in the histogram below. The distribution is skewed right, with a mean of 67.91 kilograms.
@@ -71,7 +70,6 @@ ggplot(yrbss) +
 
 
 ```
-
 
 We consider the relationship between physical acitvity and weight. We will create a variable 'physical_3plus' that says whether a high schooler is physically active for at least 3 days a week. See below the number and % of students that are physically active. We have tested whether the count function and groupby-summarise give the same result for the count and the percentage, which is the case.
 
@@ -96,7 +94,7 @@ count_active
 
 ```
 
-We have calculated a 95% confidence interval for the proportion of high schoolers who are not active 3 or more days a week through bootstrapping with the infer package, which is 0.3 - 0.326. This means the majority of people are active 3+ days a week. 
+We have calculated a 95% confidence interval for the proportion of high schoolers who are not active 3 or more days a week through bootstrapping with the infer package, which is 0.3 - 0.326. This means the majority of people are active 3+ days a week.
 
 ```{r}
 
@@ -113,11 +111,7 @@ ci_proportion_activity
 
 ```
 
-
-
-
 To analyse the relationship between weight and physical activity, we are plotting 2 boxplots, 1 for those who are physically active 3+ days a week and those who are not. We would have expected physical activity to be inversely correlated with weight, as activity generally makes you lose weight. However, it appears in the boxplots that this is not the case. To explain that physically active people are heavier, we can think of two things. Firstly, muscle is heavier than fat, and people who exercise often have more muscle. Secondly, people who are heavier might want to exercise more often to lose weight.
-
 
 ```{r, boxplot}
 
@@ -135,7 +129,7 @@ ggplot(df_active) +
 
 ## Confidence Interval
 
-Boxplots show how the medians of the two distributions compare, but we also want to compare the means and see if there is a statistical difference. First we calculate the 95% confidence interval and then do a hypothesis test to confirm the difference. 
+Boxplots show how the medians of the two distributions compare, but we also want to compare the means and see if there is a statistical difference. First we calculate the 95% confidence interval and then do a hypothesis test to confirm the difference.
 
 ```{r, ci_using_formulas}
 
@@ -152,13 +146,11 @@ means_active <- df_active %>%
 means_active
 ```
 
-There is an observed difference of about 1.77kg (68.44 - 66.67), and we notice that the two confidence intervals do not overlap. It seems that the difference is at least 95% statistically significant. Let us also conduct a hypothesis test. 
+There is an observed difference of about 1.77kg (68.44 - 66.67), and we notice that the two confidence intervals do not overlap. It seems that the difference is at least 95% statistically significant. Let us also conduct a hypothesis test.
 
 ## Hypothesis test with formula
 
-We are now going to test whether there's a difference between the mean weights for those who are physically active at least 3x a week and those we don't. 
-Our null hypothesis is that there is no difference between the means. The alternative hypothesis is that there is a difference. 
-We perform a t-test below to assess these hypotheses.
+We are now going to test whether there's a difference between the mean weights for those who are physically active at least 3x a week and those we don't. Our null hypothesis is that there is no difference between the means. The alternative hypothesis is that there is a difference. We perform a t-test below to assess these hypotheses.
 
 ```{r, t_test_using_R}
 
@@ -181,7 +173,6 @@ obs_diff <- df_active %>%
 
 ```
 
-
 ```{r, hypothesis_testing_using_infer_package}
 
 null_dist <- df_active %>%
@@ -203,10 +194,7 @@ visualise(null_dist)
 
 ```
 
-We have used `hypothesize` to set the null hypothesis as a test for independence, i.e. that there is no difference between the two mean
-Our null hypothesis (that there is no difference between the two means) has been set using the hypothesize function.
-The alternative hypothesis is that there is a difference in weight between those who exercise three or more days a week and those who don't. 
-
+We have used `hypothesize` to set the null hypothesis as a test for independence, i.e. that there is no difference between the two mean Our null hypothesis (that there is no difference between the two means) has been set using the hypothesize function. The alternative hypothesis is that there is a difference in weight between those who exercise three or more days a week and those who don't.
 
 ```{r}
 ggplot(data = null_dist, aes(x = stat)) +
@@ -218,7 +206,6 @@ After this visualisation, we need to find the p-value associated with this stati
 
 See below the visualisation of the p-value on top of the distribution. The p-value is also printed, which is 0 in this case. That means that there is a significant difference between the two means.
 
-
 ```{r}
 
 null_dist %>% visualize() +
@@ -228,7 +215,6 @@ null_dist %>%
   get_p_value(obs_stat = obs_diff, direction = "two_sided")
 
 ```
-
 
 # IMDB ratings: Differences between directors
 
@@ -241,8 +227,7 @@ movies <- read_csv(here::here("data", "movies.csv"))
 glimpse(movies)
 ```
 
-To start assessing this, we create a dataframe with the 95% confidence interval for the mean of the rating for each of the directors, using the t-statistic.
-Then we plot the confidence intervals on the same graph to see if they overlap a lot.
+To start assessing this, we create a dataframe with the 95% confidence interval for the mean of the rating for each of the directors, using the t-statistic. Then we plot the confidence intervals on the same graph to see if they overlap a lot.
 
 ```{r}
 
@@ -281,11 +266,9 @@ ggplot(data = directors) +
 
 ```
 
-Seeing that the two intervals overalp in the grey highlighted area, we need to also conduct a statistical test to see if the means are statistically significantly different. For this, we run a t-test and use the infer package to bootstrap the data as well. 
+Seeing that the two intervals overalp in the grey highlighted area, we need to also conduct a statistical test to see if the means are statistically significantly different. For this, we run a t-test and use the infer package to bootstrap the data as well.
 
-Our null hypothesis is that the means of the ratings of their films is the same.
-The alternative hypothesis is that there is a difference between the means of the ratings of Tim Burtons and Steven Spielbergs films.
-We will be using the t-statistic for the difference between the means. We are looking for a p-value smaller than 0.05 or a t-statistic bigger than 1.75 or smaller than -1.75 (based on df = 15 and p = 0.05). We have chosen the degrees of freedom as the smallest count - 1, which was 16 for Tim Burton.
+Our null hypothesis is that the means of the ratings of their films is the same. The alternative hypothesis is that there is a difference between the means of the ratings of Tim Burtons and Steven Spielbergs films. We will be using the t-statistic for the difference between the means. We are looking for a p-value smaller than 0.05 or a t-statistic bigger than 1.75 or smaller than -1.75 (based on df = 15 and p = 0.05). We have chosen the degrees of freedom as the smallest count - 1, which was 16 for Tim Burton.
 
 ```{r}
 df_directors <- movies  %>%
@@ -313,10 +296,7 @@ directors_infer %>%
 
 ```
 
-
-According to both the t.test and the bootstrapped result, there is a signficant difference in the ratings of the movies of Tim Burton and Steven Spielberg. We see that Tim has a lower mean rating than Steven. The p-value for the t.test was 0.01 and the p-value for infer was 0. 
-
-
+According to both the t.test and the bootstrapped result, there is a signficant difference in the ratings of the movies of Tim Burton and Steven Spielberg. We see that Tim has a lower mean rating than Steven. The p-value for the t.test was 0.01 and the p-value for infer was 0.
 
 # Omega Group plc- Pay Discrimination
 
@@ -405,8 +385,6 @@ The T Test package was used to assess if there is a true difference in the salar
 t.test(salary ~ gender, data = omega)
 
 ```
-
-> What can you conclude from your analysis? A couple of sentences would be enough
 
 We also ran a hypothesis test, assuming that the mean difference in salaries is zero as the null hypothesis using the simulation method from the `infer` package.
 
