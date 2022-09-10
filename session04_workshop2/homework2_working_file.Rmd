@@ -47,22 +47,15 @@ library(countrycode)
 library(patchwork)
 library(gganimate)
 library(scales)
+library(infer)
 ```
 
 # Climate change and temperature anomalies
 
-If we wanted to study climate change, we can find data on the *Combined
-Land-Surface Air and Sea-Surface Water Temperature Anomalies* in the
-Northern Hemisphere at [NASA's Goddard Institute for Space
-Studies](https://data.giss.nasa.gov/gistemp). The [tabular data of
-temperature anomalies can be found
-here](https://data.giss.nasa.gov/gistemp/tabledata_v4/NH.Ts+dSST.txt)
-
-To define temperature anomalies you need to have a reference, or base,
-period which NASA clearly states that it is the period between
-1951-1980.
-
-Run the code below to load the file:
+We are analysing a dataset from NASA's Goddard Institute for Space
+Studies to study the effects of climate change in the Northern
+Hemisphere. Glimpsing at the data, we see there are 19 variables and 143
+observations, representing the period between 1880-2022:
 
 ```{r weather_data, cache=TRUE}
 
@@ -74,37 +67,9 @@ glimpse(weather)
 
 ```
 
-Notice that, when using this function, we added two options: `skip` and
-`na`.
-
-1.  The `skip=1` option is there as the real data table only starts in
-    Row 2, so we need to skip one row.
-2.  `na = "***"` option informs R how missing observations in the
-    spreadsheet are coded. When looking at the spreadsheet, you can see
-    that missing data is coded as "\*\*\*". It is best to specify this
-    here, as otherwise some of the data is not recognized as numeric
-    data.
-
-Once the data is loaded, notice that there is a object titled `weather`
-in the `Environment` panel. If you cannot see the panel (usually on the
-top-right), go to `Tools` \> `Global Options` \> `Pane Layout` and tick
-the checkbox next to `Environment`. Click on the `weather` object, and
-the dataframe will pop up on a seperate tab. Inspect the dataframe.
-
-For each month and year, the dataframe shows the deviation of
-temperature from the normal (expected). Further the dataframe is in wide
-format.
-
-You have two objectives in this section:
-
-1.  Select the year and the twelve month variables from the `weather`
-    dataset. We do not need the others (J-D, D-N, DJF, etc.) for this
-    assignment. Hint: use `select()` function.
-
-2.  Convert the dataframe from wide to 'long' format. Hint: use
-    `gather()` or `pivot_longer()` function. Name the new dataframe as
-    `tidyweather`, name the variable containing the name of the month as
-    `month`, and the temperature deviation values as `delta`.
+For the purpose of our analysis, we have decided to select only data
+pertaining to temperature deviation (delta) by month, and manipulate the
+dataframe to facilitate further investigation:
 
 ```{r tidyweather}
 
@@ -115,25 +80,10 @@ head(tidyweather)
 
 ```
 
-Inspect your dataframe. It should have three variables now, one each for
-
-1.  year,
-2.  month, and
-3.  delta, or temperature deviation.
-
 ## Plotting Information
 
-Let us plot the data using a time-series scatter plot, and add a
-trendline. To do that, we first need to create a new variable called
-`date` in order to ensure that the `delta` values are plot
-chronologically.
-
-> In the following chunk of code, I used the `eval=FALSE` argument,
-> which does not run a chunk of code; I did so that you can knit the
-> document before tidying the data and creating a new dataframe
-> `tidyweather`. When you actually want to run this code and knit your
-> document, you must delete `eval=FALSE`, **not just here but in all
-> chunks were `eval=FALSE` appears.**
+First, we are plotting a scatter plot to visualize the evolution of
+delta (temperature deviation) over time:
 
 ```{r scatter_plot}
 
@@ -152,11 +102,14 @@ ggplot(tidyweather, aes(x=date, y = delta))+
 
 ```
 
-Is the effect of increasing temperature more pronounced in some months?
-Use `facet_wrap()` to produce a seperate scatter plot for each month,
-again with a smoothing line. Your chart should human-readable labels;
-that is, each month should be labeled "Jan", "Feb", "Mar" (full or
-abbreviated month names are fine), not `1`, `2`, `3`.
+Adding a line of best fit to the scatterplot clearly shows that, while
+deltas were close to 0 between approximately 1935-1975 and negative
+before that time, temperature in the Northern Hempishere has been
+quickly increasing since then. Notice that the rate of the increase has
+been increasing as well (as signified by increasing deltas).
+
+Next, we will use `facet_wrap()` to visualize the effects of increasing
+temperature by month:
 
 ```{r facet_wrap, echo=FALSE}
 
@@ -171,20 +124,14 @@ ggplot(tidyweather, aes(x= year, y = delta))+
 
 ```
 
-It is sometimes useful to group data into different time periods to
-study historical data. For example, we often refer to decades such as
-1970s, 1980s, 1990s etc. to refer to a period of time. NASA calcuialtes
-a temperature anomaly, as difference form the base periof of 1951-1980.
-The code below creates a new data frame called `comparison` that groups
-data in five time periods: 1881-1920, 1921-1950, 1951-1980, 1981-2010
-and 2011-present.
+We can see that the effect of rising temperature in the Northern
+Hemisphere is common to all months of the year.
 
-We remove data before 1800 and before using `filter`. Then, we use the
-`mutate` function to create a new variable `interval` which contains
-information on which period each observation belongs to. We can assign
-the different periods using `case_when()`.
+As a means to further investigate the effects of climate change, we will
+partition the data into time periods, particularly decades. To that end,
+we will use `case_when()`:
 
-```{r intervals }
+```{r intervals}
 
 comparison <- tidyweather %>% 
   filter(Year>= 1881) %>%     #remove years prior to 1881
@@ -199,13 +146,9 @@ comparison <- tidyweather %>%
 
 ```
 
-Inspect the `comparison` dataframe by clicking on it in the
-`Environment` pane.
-
-Now that we have the `interval` variable, we can create a density plot
-to study the distribution of monthly deviations (`delta`), grouped by
-the different time periods we are interested in. Set `fill` to
-`interval` to group and colour the data by different time periods.
+In order to study the effects of climate change by decade, we will
+produce a density plot to investigate the distribution of monthly
+temperature deviations by the time periods selected above:
 
 ```{r density_plot }
 
@@ -217,10 +160,12 @@ ggplot(comparison) +
 
 ```
 
-So far, we have been working with monthly anomalies. However, we might
-be interested in average annual anomalies. We can do this by using
-`group_by()` and `summarise()`, followed by a scatter plot to display
-the result.
+The plot clearly shows that with the passage of time, deltas have
+consistently moved to the right hand side of the plot. In other words,
+temperature deviations have been increasing over time.
+
+Lastly, we will also consider annual anomalies by grouping the monthly
+data and producing a scatterplot:
 
 ```{r averaging }
 
@@ -233,41 +178,27 @@ average_annual_anomaly <- tidyweather %>%
   summarise(yearly_mean = mean(delta, na.rm=TRUE)) 
   
 average_annual_anomaly
-#plotting the data:
-
-
-  
-  #Fit the best fit line, using LOESS method
+#plotting the data
+#Fit the best fit line, using LOESS method
 ggplot(average_annual_anomaly) +
   aes(x = Year, y = yearly_mean)+
   geom_point()+
-  geom_smooth(method = 'lm')
-  
-  #change theme to theme_bw() to have white background + black frame around plot
-                        
-
-
+  geom_smooth(method = 'lm') +
+  theme_bw()
 ```
+
+The plot proves that annual temprature deltas have been increasing over time.
 
 ## Confidence Interval for `delta`
 
-[NASA points out on their
-website](https://earthobservatory.nasa.gov/world-of-change/decadaltemp.php)
-that
-
-> A one-degree global change is significant because it takes a vast
-> amount of heat to warm all the oceans, atmosphere, and land by that
-> much. In the past, a one- to two-degree drop was all it took to plunge
-> the Earth into the Little Ice Age.
-
-Your task is to construct a confidence interval for the average annual
-delta since 2011, both using a formula and using a bootstrap simulation
-with the `infer` package. Recall that the dataframe `comparison` has
-already grouped temperature anomalies according to time intervals; we
-are only interested in what is happening between 2011-present.
+We will now focus on the time period between 2011-present. We divert our
+attention towards producing a confidence interval for the average annual
+deltas calculated since 2011. We will use both the statistical method
+and bootstrap simulation to have higher confidence in the results:
 
 ```{r, calculate_CI_using_formula }
 
+#statistical method
 formula_ci <- comparison %>% 
   filter(interval == '2011-present') %>% 
   group_by(year) %>% 
@@ -277,9 +208,8 @@ formula_ci <- comparison %>%
             SE = sd(delta/sqrt(count)),
             upper_ci = avg_annual_delta + 2*SE,
             lower_ci = avg_annual_delta - 2*SE)
-  
-  #specify(respnse = delta)
-  
+
+#bootstrap simulation  
 formula_ci_2 <- comparison %>% 
   filter(interval == '2011-present') %>% 
   specify(response = delta) %>% 
@@ -287,47 +217,35 @@ formula_ci_2 <- comparison %>%
   calculate(stat = 'mean') %>% 
   get_confidence_interval(level = 0.95)
 
-  # choose the interval 2011-present
-  # what dplyr verb will you use? 
-
-  # calculate summary statistics for temperature deviation (delta) 
-  # calculate mean, SD, count, SE, lower/upper 95% CI
-  # what dplyr verb will you use? 
-
 #print out formula_CI
 formula_ci
 formula_ci_2
 
 ```
 
-> What is the data showing us? Please type your answer after (and
-> outside!) this blockquote. You have to explain what you have done, and
-> the interpretation of the result. One paragraph max, please!
-
+Looking at the results of the analysis, we can see that the statistical
+method produces wider confidence intervals for temperature deltas,
+ranging from 0.13 to approximately 0.3 in width. This is probably due to
+the low number of observations (12 months in each year), which prohibit
+a more precise calculation. On the other hand, using bootstrap
+simulation allows to get a much narrower confidence interval. However,
+both methods show that temperature deltas have been positive in the time
+period in question and have been consistently greater than 1 since 2015.
 
 # Biden's Approval Margins
 
-As we saw in class, fivethirtyeight.com has detailed data on [all polls
-that track the president's
-approval](https://projects.fivethirtyeight.com/biden-approval-ratings)
+In this section, we will analyse the evolution of approval margins of US President Joe Biden. Glimpsing at the dataset, we notice there are 22 variables and 4,495 observations:
 
 ```{r, cache=TRUE}
 # Import approval polls data directly off fivethirtyeight website
 approval_polllist <- read_csv('https://projects.fivethirtyeight.com/biden-approval-data/approval_polllist.csv') 
 
 glimpse(approval_polllist)
-
-# Use `lubridate` to fix dates, as they are given as characters.
 ```
 
 ## Create a plot
 
-What I would like you to do is to calculate the average net approval
-rate (approve- disapprove) for each week since he got into office. I
-want you plot the net approval for each week in 2022, along with its 95%
-confidence interval. There are various dates given for each poll, please
-use `enddate`, i.e., the date the poll ended. Your plot should look
-something like this:
+We will first calculate the net approval rate (approve - disapprove) for each week in 2022 along with its 95% confidence interval, and then plot the results as a line plot grouping by respodent group (Adults, Voters, All Groups).
 
 ```{r question2}
 
@@ -357,22 +275,21 @@ fixed_dates <- approval_polllist %>%
     geom_line(aes(x = weeks, y = mean_rate, 
                   color = subgroup),
               show.legend = FALSE) +
-    labs(x = NULL, 
+    labs(title = "Biden's net approval ratings in 2022",
+         subtitle = "Weekly Data, Approve - Disapprove, %",
+         caption = "Source: https://projects.fivethirtyeight.com/biden-approval-data/",
+         x = NULL, 
          y = NULL) +
     theme_minimal()
 
 
 ```
 
-
-```{r trump_margins, echo=FALSE, out.width="100%"}
-knitr::include_graphics(here::here("images", "biden_approval_margin.png"), error = FALSE)
-```
+We can see President Biden's net approval relative has remained negative since the first week of 2022 among all poll respondents, meaning more people disapprove than approve of the President. Furthermore, we notice a sharp decline in the net approval rate beginning in week 23. Since that time, the approval rate seems to have returned to pre-drop levels, potentially due to the POTUS's recent delivery on several campaign promises, primarily passing the Inflation Reduction Act.
 
 # Challenge 1: Excess rentals in TfL bike sharing
 
-Recall the TfL data on how many bikes were hired every single day. We
-can get the latest data by running the following
+This section focuses on analysing data on rentals in Tfl bike sharing.
 
 ```{r, get_tfl_data, cache=TRUE}
 url <- "https://data.london.gov.uk/download/number-bicycle-hires/ac29363e-e0cb-47cc-a97a-e216d900a6b0/tfl-daily-cycle-hires.xlsx"
@@ -393,76 +310,78 @@ bike <- bike0 %>%
           month = lubridate::month(day, label = TRUE),
           week = isoweek(day))
 
+glimpse(bike)
+
 ```
 
-We can easily create a facet grid that plots bikes hired by month and
-year since 2015
-
-```{r tfl_month_year_grid, echo=FALSE, out.width="100%"}
-knitr::include_graphics(here::here("images", "tfl_distributions_monthly.png"), error = FALSE)
-```
-
-However, the challenge I want you to work on is to reproduce the
-following two graphs.
-
-```{r tfl_absolute_monthly_change, echo=FALSE, out.width="100%"}
-knitr::include_graphics(here::here("images", "tfl_monthly.png"), error = FALSE)
-```
+First, we calculate the monthly change in Tfl bike rentals, calculated as the difference between the actual monthly average and the historical average calculated between 2016-2019. We plot the data faceting by year, using `geom_ribbon()` to visualize the positive/negative deltas.
 
 ```{r challenge1.1}
+#calculating expected number of rentals
 compare <- bike %>%
   filter(year %in% c(2016:2019)) %>% 
   group_by(month) %>% 
   summarise(compare_avg = mean(bikes_hired))
 
+#calculating monthly averages
 avg <- bike %>% 
   filter(year %in% 2017:2022) %>% 
   group_by(year, month) %>% 
   summarise(actual_avg = mean(bikes_hired))
-
-left_join(avg, compare, by = 'month') %>% 
+#joining datasets
+left_join(avg, compare, by = 'month') %>%
+  #calculating differences
   mutate(difference = actual_avg - compare_avg, 
          pos_diff = ifelse(difference > 0, actual_avg, 0),
-         neg_diff = ifelse(difference < 0, compare_avg, 0)) %>% 
+         neg_diff = ifelse(difference < 0, compare_avg, 0)) %>%
+  #plotting
   ggplot(aes(x = month)) +
   geom_line(aes(y = compare_avg, group = 1), color = "blue", lwd = 1.5) +
   geom_line(aes(y = actual_avg, group = 1)) +
   geom_ribbon(aes(ymin = compare_avg, ymax = pmax(0, difference) + compare_avg, fill = "red", alpha = 0.5, group = 1)) +
-  geom_ribbon(aes(ymin = pmin(0, difference) + compare_avg, ymax = compare_avg, fill = "black", alpha = 0.5, group = 1)) +
-  facet_wrap(vars(year))
+  geom_ribbon(aes(ymin = pmin(0, difference) + compare_avg, ymax = compare_avg, fill = "green", alpha = 0.5, group = 1)) +
+  facet_wrap(vars(year)) +
+  labs(title = "Monthly changes in Tfl bike rentals",
+       subtitle = "Change from monthly average shown in blue and calculated between 2016-2019",
+       caption = "Source: Tfl, London Data Store",
+       x = NULL,
+       y = "Bike rentals") +
+  theme(legend.position = "none")
 ```
 
+We can see that Tfl bike rentals have been lower than in the 2016-2019 at the beginning of the pandemic, but quickly recovered and exceeded historical data. Interestingly, there has been a significant uptake starting in the second half of 2021, possibly due to changing preferences regarding means of transport, with public transport losing users to Tfl bikes. 
 
-The second one looks at percentage changes from the expected level of
-weekly rentals. The two grey shaded rectangles correspond to Q2 (weeks
-14-26) and Q4 (weeks 40-52).
+Next, we plot a similar graph to visualize weekly changes in Tfl bike rentals between actual data and the 2016-2019 average.
 
-```{r tfl_percent_change, echo=FALSE, out.width="100%"}
-knitr::include_graphics(here::here("images", "tfl_weekly.png"), error = FALSE)
-```
 ```{r challenge1.2}
+#calculating expected number of rentals
 compare <- bike %>%
   filter(year %in% c(2016:2019)) %>% 
   group_by(week) %>% 
   summarise(compare_avg = mean(bikes_hired))
 
+#calculating weekly averages
 avg <- bike %>% 
   filter(year %in% 2017:2022) %>% 
   group_by(year, week) %>% 
   summarise(actual_avg = mean(bikes_hired))
 
+#deleting aberrant observations (average for future weeks in 2022)
 avg <- avg[-298,]
 
-left_join(avg, compare, by = 'week') %>% 
+#joining dataframes
+left_join(avg, compare, by = 'week') %>%
+  #calculating differences
   mutate(diff = (actual_avg - compare_avg)/compare_avg,
          pos_diff = ifelse(diff > 0, diff, 0),
-         neg_diff = ifelse(diff < 0, diff, 0)) %>% 
+         neg_diff = ifelse(diff < 0, diff, 0)) %>%
+  #plotting
   ggplot(aes(x = week, y = diff)) +
   scale_x_discrete(limits = c(13, 26, 39, 53)) +
   scale_y_continuous(labels = percent) +
   geom_rect(aes(xmin = 13, xmax = 26, ymin = -Inf, ymax = Inf), alpha = 0.3, fill = "grey90") +
   geom_rect(aes(xmin = 39, xmax = 53, ymin = -Inf, ymax = Inf), alpha = 0.3, fill = "grey90") +
-  geom_line(aes(y = diff, group = 1), color = 'black', lwd = 1.3) +
+  geom_line(aes(y = diff, group = 1), color = 'black', lwd = 0.8) +
   geom_ribbon(aes(ymin = 0, ymax = pmax(0, pos_diff)), fill = 'green', alpha = 0.3) +
   geom_ribbon(aes(ymin = pmin(0, neg_diff), ymax = 0), fill = 'red', alpha = 0.3) +
   geom_rug(aes(colour = diff), 
@@ -478,31 +397,25 @@ left_join(avg, compare, by = 'week') %>%
   theme_minimal() +
   labs(title = "Weekly changes in Tfl bike rentals",
        subtitle = "% change from weekly averages calculated between 2016-2019",
-       caption = "Source: Tfl, London Data Store"
-       )
+       caption = "Source: Tfl, London Data Store",
+       x = "Week",
+       y = NULL)
 ```
-For both of these graphs, you have to calculate the expected number of
-rentals per week or month between 2016-2019 and then, see how each
-week/month of 2020-2022 compares to the expected rentals. Think of the
-calculation `excess_rentals = actual_rentals - expected_rentals`.
 
-Should you use the mean or the median to calculate your expected
-rentals? Why?
+Again, one can easily notice the drops at the beginning of 2020 (start of the pandemic) and in winter of 2021 (COVID wave), as well as the sizable increase in Tfl rentals since the second half of 2021. 
 
-In creating your plots, you may find these links useful:
+It should be noted that the mean has been used to calculate the expected number of bike rentals for each month/week since the data follows a normal distribution, as seen in the histogram below. Otherwise, it would have been optimal to use the median instead, as it is a more robust measure of central tendency. 
 
--   <https://ggplot2.tidyverse.org/reference/geom_ribbon.html>
--   <https://ggplot2.tidyverse.org/reference/geom_tile.html>
--   <https://ggplot2.tidyverse.org/reference/geom_rug.html>
+```{r outliers}
+hist(bike$bikes_hired)
+```
+
 
 # Challenge 2: Share of renewable energy production in the world
 
-The National Bureau of Economic Research (NBER) has a a very interesting
-dataset on the adoption of about 200 technologies in more than 150
-countries since 1800. This is the[Cross-country Historical Adoption of
-Technology (CHAT) dataset](https://www.nber.org/research/data/cross-country-historical-adoption-technology).
+This last section focuses on analysing the share of renewable energy production around the world. We will be using datasets from the National Bureau of Economic Research (NBER) and the World Bank.
 
-The following is a description of the variables
+The following is a description of the variables from the NBER dataset:
 
 | **variable** | **class** | **description**                |
 |--------------|-----------|--------------------------------|
@@ -514,7 +427,7 @@ The following is a description of the variables
 | category     | character | Category                       |
 | value        | double    | Value (related to label)       |
 
-```{r,load_technology_data}
+```{r,load_technology_data, cache=TRUE}
 
 technology <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-07-19/technology.csv')
 
@@ -555,16 +468,12 @@ countries <-  wb_cachelist$countries %>%
 
 ```
 
-This is a very rich data set, not just for energy and CO2 data, but for many other technologies. In our case, we just need to produce a couple of graphs-- at this stage, the emphasis is on data manipulation, rather than making the graphs gorgeous.
-
-First, produce a graph with the countries with the highest and lowest % contribution of renewables in energy production. This is made up of `elec_hydro`, `elec_solar`, `elec_wind`, and `elec_renew_other`. You may want to use the *patchwork* package to assemble the two charts next to each other.
- 
-```{r min-max_renewables, echo=FALSE, out.width="100%"}
-knitr::include_graphics(here::here("images", "renewables.png"), error = FALSE)
-```
-
+First, produce a graph with the countries with the highest and lowest %
+contribution of renewables in energy production. 
 
 ```{r challenge2.1}
+
+#manipulating the dataset
 data <- energy %>% 
   filter(year == 2019) %>% 
   select(country, variable, value) %>% 
@@ -577,26 +486,44 @@ data <- energy %>%
   arrange(desc(renew_rounded)) %>% 
   select(country, renew_rounded)
 
+#selecting top20 observations
 max <- data %>%
   slice_max(n = 20, order_by = renew_rounded)
-  
-max_plot <- ggplot(max, aes(x = renew_rounded, y = reorder(country, renew_rounded))) +
-            geom_bar(stat = 'identity')
 
+#plotting  
+max_plot <- ggplot(max, aes(x = renew_rounded, y = reorder(country, renew_rounded))) +
+            geom_bar(stat = 'identity') +
+            scale_x_continuous(labels = percent) +
+            labs(x = NULL, y = NULL)
+
+#selecting min20 observations
 min <- data %>% 
   slice_min(n = 20, order_by = renew_rounded)
 
+#plotting
 min_plot <- ggplot(min, aes(x = renew_rounded, y = reorder(country, renew_rounded))) +
-            geom_bar(stat = 'identity')
+            geom_bar(stat = 'identity') +
+            scale_x_continuous(labels = percent) +
+            labs(x = NULL, y = NULL)
 
 library(patchwork)
-max_plot + min_plot
+full_plot <- max_plot + min_plot 
+
+full_plot + plot_annotation(
+  title = "Highest and lowest % in energy production",
+  subtitle = "2019 data",
+  caption = "NBER CHAT Database")
 
 ```
-Second, you can produce an animation to explore the relationship between CO2 per capita emissions and the deployment of renewables. As the % of energy generated by renewables goes up, do CO2 per capita emissions seem to go down?
+
+We can see that countries with the highest share of renewables in their energy mix are not necessarily the richest nations, 8 of which get 100% of their energy from renewable sources. Similarly, the ones with the lowest % of renewables used to produce energy include some of the wealthiest states in the world (Kuwait, Qatar), which is likely due to their access to vast amounts of oil. 
+
+Second, we can produce an animation to explore the relationship between
+CO2 per capita emissions and the deployment of renewables over time, faceted by income group. 
 
 ```{r challenge2.2}
 
+#manipulating the data to facilitate time-series analysis
 renewables <- energy %>% 
   select(iso3c, year, country, variable, value) %>% 
   pivot_wider(names_from = "variable", values_from = "value") %>% 
@@ -607,21 +534,25 @@ renewables <- energy %>%
   filter(renew_rounded > 0) %>% 
   select(iso3c, year, country, renew_rounded)
 
+#deleting aberrant observations (share of renewables > 100%)
 renewables <- renewables[-c(1:3), ]
 
-
+#joining datasets to create a single dataframe
 joined_first <- left_join(renewables, co2_percap, by=c("iso3c" = "iso3c", "year" = "date"))
 full_data <- left_join(joined_first, countries, by = "iso3c")
 
+#filtering the dataset
 for_plots <- full_data %>% 
   mutate(year = as.integer(year)) %>% 
   select(year, country.x, renew_rounded, value, income_level) %>%
   drop_na(income_level, value) %>% 
   filter(year %in% 1990:2020)
 
+#plotting
 plot <- for_plots %>% 
   ggplot(aes(x = renew_rounded, y = value, color = income_level)) +
   geom_point() +
+  ylim(0, 50) +
   facet_wrap(vars(income_level)) +
   labs(title = 'Year: {frame_time}', 
        x = '% renewables', 
@@ -635,61 +566,11 @@ for_plots
 plot
 ```
 
- 
-```{r animation, echo=FALSE, out.width="100%"}
-knitr::include_graphics(here::here("images", "animation.gif"), error = FALSE)
-```
-
-To create this animation is actually straight-forward. You manipulate your date, and the create the graph in the normal ggplot way. the only `gganimate` layers you need to add to your graphs are
-
-```
-  labs(title = 'Year: {frame_time}', 
-       x = '% renewables', 
-       y = 'CO2 per cap') +
-  transition_time(year) +
-  ease_aes('linear')
-```
-
-
-# Deliverables
-
-As usual, there is a lot of explanatory text, comments, etc. You do not
-need these, so delete them and produce a stand-alone document that you
-could share with someone. Knit the edited and completed R Markdown file
-as an HTML document (use the "Knit" button at the top of the script
-editor window) and upload it to Canvas.
+The animation shows that as the % of energy generated by renewables goes up, CO2 per capita emissions do not seem to go down. This would be signified by dots moving diagonally from the upper-left to the lower-right corner of the plot. However, no such moevement is detected. In fact, we can observe that quite a few countries move horizontally to the right, which means that their CO2 per capita emissions stay constant as the share of renewables in their energy mix increases.
 
 # Details
 
--   Who did you collaborate with: TYPE NAMES HERE
+-   Who did you collaborate with: Samarth Sharma, Vivian van Oosten, Anastasia Fu, Jaelyn Shi, Andrew      Robak, Shivant Maharaj
 -   Approximately how much time did you spend on this problem set:
-    ANSWER HERE
--   What, if anything, gave you the most trouble: ANSWER HERE
-
-**Please seek out help when you need it,** and remember the [15-minute
-rule](https://mam202.netlify.app/syllabus/#the-15-minute-rule){target="_blank"}.
-You know enough R (and have enough examples of code from class and your
-readings) to be able to do this. If you get stuck, ask for help from
-others, post a question on Slack-- and remember that I am here to help
-too!
-
-> As a true test to yourself, do you understand the code you submitted
-> and are you able to explain it to someone else?
-
-# Rubric
-
-Check minus (1/5): Displays minimal effort. Doesn't complete all
-components. Code is poorly written and not documented. Uses the same
-type of plot for each graph, or doesn't use plots appropriate for the
-variables being analyzed.
-
-Check (3/5): Solid effort. Hits all the elements. No clear mistakes.
-Easy to follow (both the code and the output).
-
-Check plus (5/5): Finished all components of the assignment correctly
-and addressed both challenges. Code is well-documented (both
-self-documented and with additional comments as necessary). Used
-tidyverse, instead of base R. Graphs and tables are properly labelled.
-Analysis is clear and easy to follow, either because graphs are labeled
-clearly or you've written additional text to describe how you interpret
-the output.
+    10h
+-   What, if anything, gave you the most trouble: shadowing the two quarters in challenge 1
