@@ -481,7 +481,7 @@ The visual assessing salary and experience for various genders shows the same fi
 
 Recreating the Brexit Plot.
 
-```{r brexit_challenge, echo=FALSE, out.width="100%"}
+```{r brexit_challenge, echo=TRUE, out.width="100%"}
 knitr::include_graphics(here::here("images", "brexit.png"), error = FALSE)
 
 # read data directly off github repo
@@ -523,8 +523,7 @@ glimpse(UN_GDP_data)
 
 We tidy the data to make sure it's in a long format. We also change the indicator names to be more concise, which helps legibility of the graph legend later. We then plot the data to show the GDP and it's components over time.
 
-```{r reshape_GDP_data, eval=FALSE}
-```{r reshape_GDP_data, eval=FALSE}
+```{r reshape_GDP_data}
 
 
 tidy_GDP_data  <- UN_GDP_data %>% 
@@ -542,7 +541,7 @@ tidy_GDP_data  <- UN_GDP_data %>%
      IndicatorName == "Exports of goods and services" ~ "Exports",
      IndicatorName == "Gross Domestic Product (GDP)" ~ "Gross Domestic Product",
     )) %>%
-drop_na(tidy_GDP_data) 
+  drop_na() 
 
 glimpse(tidy_GDP_data)
 
@@ -577,7 +576,7 @@ ggplot(tidy_GDP_data_countrywise)+
 
 ```
 
-We now start testing whether the GDP from the sum of the components is the same as the GDP in reality. Below we calculate the percentage difference between reality and theory. 
+We now start testing whether the GDP from the sum of the components is the same as the GDP in reality. Below we calculate the percentage difference between reality and theory.
 
 ```{r gdp1, echo=FALSE, out.width="100%"}
 knitr::include_graphics(here::here("images", "gdp1.png"), error = FALSE)
@@ -602,7 +601,7 @@ comparative_gdp_data %>%
 
 ```
 
-There is a percentage difference of 35.1% for Germany, 26.3% for India and 19.9% for United States 
+There is a percentage difference of 35.1% for Germany, 26.3% for India and 19.9% for United States
 
 ```{r gdp2, echo=FALSE, out.width="100%"}
 knitr::include_graphics(here::here("images", "gdp2.png"), error = FALSE)
