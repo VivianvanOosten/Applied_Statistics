@@ -57,7 +57,7 @@ olympics_2020_medals <- medals[[3]] %>% # the third table on the page contains t
 medals_iso3 <-  olympics_2020_medals %>% 
   select(noc) %>% 
   pull() %>% 
-  countrycode( #using the countrycode package 
+  countrycode(
     origin = "country.name",
     destination = 'iso3c') %>% 
   as_tibble()
