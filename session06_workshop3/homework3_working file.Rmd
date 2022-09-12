@@ -495,9 +495,11 @@ ggplot(filtered_brexit_data) +
   aes(x = percentage, y = leave_share, colour = party) + 
   geom_point(alpha = 0.35) + 
   geom_smooth(method = "lm") +
-  scale_color_manual(breaks = c("con_2015", "lab_2015", "ld_2015", "ukip_2015"), values=c("#0087DC", "#E4003B", "#FAA61A", "#FFD700")) +
+  scale_color_manual(breaks = c("con_2015", "lab_2015", "ld_2015", "ukip_2015"), values=c("#0087DC", "#E4003B", "#FAA61A", "#FFD700"), labels=c('Conservative', 'Labour', 'Lib Dems', 'UKIP')) +
   labs(x = "Party % in the UK 2015 general election", y = "Party % in the 2016 Brexit referendum", title = "How political affiliation translated to Brexit Voting") +
-  theme_bw() + theme(aspect.ratio = 1)
+ theme_bw() +
+  theme(legend.position = "bottom", legend.title = element_blank())
+#+ theme(aspect.ratio = 1)
 
 ```
 
