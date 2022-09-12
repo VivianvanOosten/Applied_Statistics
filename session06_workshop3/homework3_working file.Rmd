@@ -523,9 +523,7 @@ glimpse(UN_GDP_data)
 
 We tidy the data to make sure it's in a long format. We also change the indicator names to be more concise, which helps legibility of the graph legend later. We then plot the data to show the GDP and it's components over time.
 
-```{r reshape_GDP_data, eval=FALSE}
-```{r reshape_GDP_data, eval=FALSE}
-
+```{r reshape_GDP_data}
 
 tidy_GDP_data  <- UN_GDP_data %>% 
   
@@ -542,7 +540,7 @@ tidy_GDP_data  <- UN_GDP_data %>%
      IndicatorName == "Exports of goods and services" ~ "Exports",
      IndicatorName == "Gross Domestic Product (GDP)" ~ "Gross Domestic Product",
     )) %>%
-drop_na(tidy_GDP_data) 
+  drop_na() 
 
 glimpse(tidy_GDP_data)
 
@@ -559,7 +557,6 @@ tidy_GDP_data_countrywise <- tidy_GDP_data %>%
   group_by(Country) %>% 
    mutate(year = as.integer(year))
   
-tidy_GDP_data_countrywise
   
 ggplot(tidy_GDP_data_countrywise)+
   aes(x = year, y = GDP_new, color = tidy_IndicatorName)+
