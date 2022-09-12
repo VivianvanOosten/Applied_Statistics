@@ -357,6 +357,8 @@ obs_diff <- omega %>%
 p_val <- summary_stats %>%
   get_p_value(obs_stat = obs_diff, direction = "two_sided")
 
+p_val
+
 ```
 
 From the initial analysis in the table above, it is shown that males have a higher mean salary of 8696 than females. We decided that more analysis is required to determine if this difference is significant and to decide if there are any further analysis required to uncover influencing factors.
