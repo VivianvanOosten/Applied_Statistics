@@ -315,15 +315,7 @@ glimpse(omega) # examine the data frame
 
 ## Relationship Salary - Gender ?
 
-The data frame `omega` contains the salaries for the sample of 50 executives in the company. Can you conclude that there is a significant difference between the salaries of the male and female executives?
-
-Note that you can perform different types of analyses, and check whether they all lead to the same conclusion
-
-. Confidence intervals . Hypothesis testing . Correlation analysis . Regression
-
-Calculate summary statistics on salary by gender. Also, create and print a dataframe where, for each gender, you show the mean, SD, sample size, the t-critical, the SE, the margin of error, and the low/high endpoints of a 95% confidence interval
-
-We have constructed a visualization that shows the salary trend between male and female employees:
+The data frame `omega` contains the salaries for the sample of 50 executives in the company. We have constructed a visualization that shows the salary trend between male and female employees:
 
 ```{r, salary_visualisation}
 
@@ -444,7 +436,6 @@ t.test(experience ~ gender, data = omega)
 
 Further analysis was conducted in the form of a T Test to assess the if there is any significant differences in experience between genders. The following test show the statistical variables for Omega Plc.The findings show that there is a significant difference in the experience between males and females from Omega Plc, shown by the observed t-value is greater than 1.96 and a small p-value. This finding assists in validating the pervious observation - as the average experience of males suggests reason as to why the salaries of genders are different.
 
-Based on this evidence, can you conclude that there is a significant difference between the experience of the male and female executives? Perform similar analyses as in the previous section. Does your conclusion validate or endanger your conclusion about the difference in male and female salaries?
 
 ## Relationship Salary - Experience ?
 
