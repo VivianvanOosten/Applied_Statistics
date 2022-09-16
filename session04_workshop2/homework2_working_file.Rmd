@@ -218,6 +218,8 @@ formula_ci_2 <- comparison %>%
   calculate(stat = 'mean') %>% 
   get_confidence_interval(level = 0.95)
 
+
+
 #print out formula_CI
 formula_ci
 formula_ci_2
