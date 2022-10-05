@@ -118,6 +118,10 @@ scatterplot_loan_interest
 
 
 # Add 2 visualizations of your own
+# boxplot of interest rate based on home ownership
+lc_clean %>%
+  ggplot(aes(x= int_rate, y = home_ownership))+
+  geom_boxplot() 
 
 ```
 
@@ -127,23 +131,25 @@ We start with a simple but quite powerful model. Use the `lm` command to estimat
 
 ```{r, simple regression, eval = F}
 
-model0<-lm( #add code here
-  )
-summary(model)
+model0 <- lm(int_rate ~ term + annual_inc + dti + grade, data = lc_clean)
+summary(model0)
 
 ```
 
 # **Q2.** Answer the following questions on model 0. {-}
 a. Are all variables statistically significant?
+
+> All variables are significant. 
+
 b. How much explanatory power does the model have? 
 
->Answer here:
+>  Around 91.91% of variance in the interest rate is explained by our current model
 
 Fit a new linear regression that is identical to model 0, however, with the extra variable "loan_amnt".
 
 ```{r, simple regression with extra variable, eval = F}
 
-model1 <-lm( #add code here
+model1 <-lm( int_rate ~ term + annual_inc + dti + grade + loan_amnt, data = lc_clean
   )
 summary(model1)
 
@@ -152,7 +158,11 @@ summary(model1)
 # **Q3.** Answer the following questions on model 1. {-}
 
 a. Are all variables statistically significant?
+> No
+
 b. If your answer to part 'a' is affirmative, then discuss whether model 0 should be preferred over model 1. Otherwise, discuss how a variable that was statistically significant in model 0 is not significant anymore; or how the new variable is not statistically significant.
+> Loan amount explains the variance in interest rate better than annual income, and they  
+
 c. How do you interpret the coefficients of the *(i)* "term60" dummy variable; *(ii)* "gradeF" dummy variable; and *(iii)* "loan_amnt" variable?
 d. How much explanatory power does the model have? 
 e. Approximately, how wide would the 95% confidence interval of any prediction based on this model be? 
@@ -166,18 +176,18 @@ Let's build progressively more complex models, with more features.
 ```{r, Feature Engineering, eval = F}
 #Add to model 1 an interaction between loan amount and grade. Use the "var1*var2" notation to define an interaction term in the linear regression model. This will add the interaction and the individual variables to the model. 
 
-model2 <-
+model2 <- lm( int_rate ~ term + annual_inc + dti + grade*loan_amnt, data = lc_clean)
 summary(model2)
 #Add to the model you just created above the square and the cube of annual income. Use the poly(var_name,3) command as a variable in the linear regression model.  
 
-model3 <-  
+model3 <-lm( int_rate ~ poly(annual_inc, 3)  + term  + dti + grade*loan_amnt , data = lc_clean)
 summary(model3)
 #Continuing with the previous model, instead of annual income as a continuous variable break it down into quartiles and use quartile dummy variables. This is an alternative way of modelling non-linear relationships. You can do this with the following command. 
   
 lc_clean <- lc_clean %>% 
   mutate(quartiles_annual_inc = as.factor(ntile(annual_inc, 4)))
 
-model4 <-
+model4 <- lm( int_rate ~ quartiles_annual_inc  + term  + dti + grade*loan_amnt , data = lc_clean)
 summary(model4)  
 
 #Compare the performance of these four models using the `anova` command
@@ -186,7 +196,8 @@ anova(model1, model2, model3, model4)
 ```
 
 # **Q4.** Answer the following questions {-}
-a. Which of the four models has the most explanatory power in sample? Without testing on a test set, which model would you say has the highest out of sample explanatory power? \
+a. Which of the four models has the most explanatory power in sample? Without testing on a test set, which model would you say has the highest out of sample explanatory power? 
+
 b. In model 1, how do you interpret the estimated coefficient of the interaction term between grade C and loan amount?\
 c. The problem of multicollinearity describes the situations where one feature is highly correlated with other features (or with a linear combination of other features). If your goal is to use the model to make predictions, should you be concerned by the problem of multicollinearity? Why, or why not?
 
@@ -199,20 +210,20 @@ Let's check the predictive accuracy of model2 by holding out a subset of the dat
 ```{r, out of sample testing, eval = F}
 # split the data in dataframe called "testing" and another one called  "training". The "training" dataframe should have 80% of the data and the "testing" dataframe 20%.
 set.seed(23)
-train_test_split <- initial_split( #complete here
-  )
-training <- #complete here
-testing <- #complete here
+train_test_split <- initial_split(lc_clean, prop = 0.75
+                                  )
+training <- training(train_test_split)
+testing <- testing(train_test_split)
 
 #Fit model2 on the training set 
-model2_training<-lm( #add the same code for model 2 in section "Feature Engineering" -- only change the dataset
-)
+model2_training <- lm( int_rate ~ term + annual_inc + dti + grade*loan_amnt, data = training)
+summary(model2_training)
 
 # Calculate the RMSE of the model in the training set (in sample)
-rmse_training<- model2_training %>% # take the residuals
-              %>% #square the residuals
-              %>% #average of the squared residuals
-              %>% #take the root as this is an RMSE calculation
+rmse_training<- model2_training %>% residuals()
+              %>% square()
+              %>% mean()
+              %>% root()
 
 # Use the model to make predictions out of sample in the testing set
 pred<-predict(model2_training,testing)
