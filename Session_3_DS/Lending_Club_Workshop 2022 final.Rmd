@@ -96,7 +96,16 @@ lc_clean %>%
   theme_bw()
 
 # Build a histogram of interest rates but use different color for loans of different grades 
-
+  lc_clean %>%  ggplot( aes(int_rate, fill = grade)) + 
+    geom_histogram(bins = 20) + 
+    theme_bw() +
+    theme(legend.position = "right") +
+    
+    labs(title = "Lower risk grades result in lower interest rates charged.",
+         subtitle ="Histogram showing the distribution of interest rates segmented per risk grade.",
+         caption ="Source: Lending Club (2022)",
+         x = "Risk Grade",
+         y = "Interest Rate")
 
 # Produce a scatter plot of loan amount against interest rate and add visually the line of best fit
 scatterplot_loan_interest <- ggplot(lc_clean, aes(x = loan_amnt, y = int_rate) ) +
