@@ -187,7 +187,8 @@ ggplot(average_annual_anomaly) +
   theme_bw()
 ```
 
-The plot proves that annual temprature deltas have been increasing over time.
+The plot proves that annual temprature deltas have been increasing over
+time.
 
 ## Confidence Interval for `delta`
 
@@ -234,7 +235,9 @@ period in question and have been consistently greater than 1 since 2015.
 
 # Biden's Approval Margins
 
-In this section, we will analyse the evolution of approval margins of US President Joe Biden. Glimpsing at the dataset, we notice there are 22 variables and 4,495 observations:
+In this section, we will analyse the evolution of approval margins of US
+President Joe Biden. Glimpsing at the dataset, we notice there are 22
+variables and 4,495 observations:
 
 ```{r, cache=TRUE}
 # Import approval polls data directly off fivethirtyeight website
@@ -245,7 +248,10 @@ glimpse(approval_polllist)
 
 ## Create a plot
 
-We will first calculate the net approval rate (approve - disapprove) for each week in 2022 along with its 95% confidence interval, and then plot the results as a line plot grouping by respodent group (Adults, Voters, All Groups).
+We will first calculate the net approval rate (approve - disapprove) for
+each week in 2022 along with its 95% confidence interval, and then plot
+the results as a line plot grouping by respodent group (Adults, Voters,
+All Groups).
 
 ```{r question2}
 
@@ -285,7 +291,13 @@ fixed_dates <- approval_polllist %>%
 
 ```
 
-We can see President Biden's net approval relative has remained negative since the first week of 2022 among all poll respondents, meaning more people disapprove than approve of the President. Furthermore, we notice a sharp decline in the net approval rate beginning in week 23. Since that time, the approval rate seems to have returned to pre-drop levels, potentially due to the POTUS's recent delivery on several campaign promises, primarily passing the Inflation Reduction Act.
+We can see President Biden's net approval relative has remained negative
+since the first week of 2022 among all poll respondents, meaning more
+people disapprove than approve of the President. Furthermore, we notice
+a sharp decline in the net approval rate beginning in week 23. Since
+that time, the approval rate seems to have returned to pre-drop levels,
+potentially due to the POTUS's recent delivery on several campaign
+promises, primarily passing the Inflation Reduction Act.
 
 # Challenge 1: Excess rentals in TfL bike sharing
 
@@ -314,7 +326,10 @@ glimpse(bike)
 
 ```
 
-First, we calculate the monthly change in Tfl bike rentals, calculated as the difference between the actual monthly average and the historical average calculated between 2016-2019. We plot the data faceting by year, using `geom_ribbon()` to visualize the positive/negative deltas.
+First, we calculate the monthly change in Tfl bike rentals, calculated
+as the difference between the actual monthly average and the historical
+average calculated between 2016-2019. We plot the data faceting by year,
+using `geom_ribbon()` to visualize the positive/negative deltas.
 
 ```{r challenge1.1}
 #calculating expected number of rentals
@@ -349,9 +364,15 @@ left_join(avg, compare, by = 'month') %>%
   theme(legend.position = "none")
 ```
 
-We can see that Tfl bike rentals have been lower than in the 2016-2019 at the beginning of the pandemic, but quickly recovered and exceeded historical data. Interestingly, there has been a significant uptake starting in the second half of 2021, possibly due to changing preferences regarding means of transport, with public transport losing users to Tfl bikes. 
+We can see that Tfl bike rentals have been lower than in the 2016-2019
+at the beginning of the pandemic, but quickly recovered and exceeded
+historical data. Interestingly, there has been a significant uptake
+starting in the second half of 2021, possibly due to changing
+preferences regarding means of transport, with public transport losing
+users to Tfl bikes.
 
-Next, we plot a similar graph to visualize weekly changes in Tfl bike rentals between actual data and the 2016-2019 average.
+Next, we plot a similar graph to visualize weekly changes in Tfl bike
+rentals between actual data and the 2016-2019 average.
 
 ```{r challenge1.2}
 #calculating expected number of rentals
@@ -402,18 +423,25 @@ left_join(avg, compare, by = 'week') %>%
        y = NULL)
 ```
 
-Again, one can easily notice the drops at the beginning of 2020 (start of the pandemic) and in winter of 2021 (COVID wave), as well as the sizable increase in Tfl rentals since the second half of 2021. 
+Again, one can easily notice the drops at the beginning of 2020 (start
+of the pandemic) and in winter of 2021 (COVID wave), as well as the
+sizable increase in Tfl rentals since the second half of 2021.
 
-It should be noted that the mean has been used to calculate the expected number of bike rentals for each month/week since the data follows a normal distribution, as seen in the histogram below. Otherwise, it would have been optimal to use the median instead, as it is a more robust measure of central tendency. 
+It should be noted that the mean has been used to calculate the expected
+number of bike rentals for each month/week since the data follows a
+normal distribution, as seen in the histogram below. Otherwise, it would
+have been optimal to use the median instead, as it is a more robust
+measure of central tendency.
 
 ```{r outliers}
 hist(bike$bikes_hired)
 ```
 
-
 # Challenge 2: Share of renewable energy production in the world
 
-This last section focuses on analysing the share of renewable energy production around the world. We will be using datasets from the National Bureau of Economic Research (NBER) and the World Bank.
+This last section focuses on analysing the share of renewable energy
+production around the world. We will be using datasets from the National
+Bureau of Economic Research (NBER) and the World Bank.
 
 The following is a description of the variables from the NBER dataset:
 
@@ -469,7 +497,7 @@ countries <-  wb_cachelist$countries %>%
 ```
 
 First, produce a graph with the countries with the highest and lowest %
-contribution of renewables in energy production. 
+contribution of renewables in energy production.
 
 ```{r challenge2.1}
 
@@ -516,10 +544,16 @@ full_plot + plot_annotation(
 
 ```
 
-We can see that countries with the highest share of renewables in their energy mix are not necessarily the richest nations, 8 of which get 100% of their energy from renewable sources. Similarly, the ones with the lowest % of renewables used to produce energy include some of the wealthiest states in the world (Kuwait, Qatar), which is likely due to their access to vast amounts of oil. 
+We can see that countries with the highest share of renewables in their
+energy mix are not necessarily the richest nations, 8 of which get 100%
+of their energy from renewable sources. Similarly, the ones with the
+lowest % of renewables used to produce energy include some of the
+wealthiest states in the world (Kuwait, Qatar), which is likely due to
+their access to vast amounts of oil.
 
 Second, we can produce an animation to explore the relationship between
-CO2 per capita emissions and the deployment of renewables over time, faceted by income group. 
+CO2 per capita emissions and the deployment of renewables over time,
+faceted by income group.
 
 ```{r challenge2.2}
 
@@ -566,11 +600,18 @@ for_plots
 plot
 ```
 
-The animation shows that as the % of energy generated by renewables goes up, CO2 per capita emissions do not seem to go down. This would be signified by dots moving diagonally from the upper-left to the lower-right corner of the plot. However, no such moevement is detected. In fact, we can observe that quite a few countries move horizontally to the right, which means that their CO2 per capita emissions stay constant as the share of renewables in their energy mix increases.
+The animation shows that as the % of energy generated by renewables goes
+up, CO2 per capita emissions do not seem to go down. This would be
+signified by dots moving diagonally from the upper-left to the
+lower-right corner of the plot. However, no such moevement is detected.
+In fact, we can observe that quite a few countries move horizontally to
+the right, which means that their CO2 per capita emissions stay constant
+as the share of renewables in their energy mix increases.
 
 # Details
 
--   Who did you collaborate with: Samarth Sharma, Vivian van Oosten, Anastasia Fu, Jaelyn Shi, Andrew      Robak, Shivant Maharaj
--   Approximately how much time did you spend on this problem set:
-    10h
--   What, if anything, gave you the most trouble: shadowing the two quarters in challenge 1
+-   Who did you collaborate with: Samarth Sharma, Vivian van Oosten,
+    Anastasia Fu, Jaelyn Shi, Andrew Robak, Shivant Maharaj
+-   Approximately how much time did you spend on this problem set: 10h
+-   What, if anything, gave you the most trouble: shadowing the two
+    quarters in challenge 1
