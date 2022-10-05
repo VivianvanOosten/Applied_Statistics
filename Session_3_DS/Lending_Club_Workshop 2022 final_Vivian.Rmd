@@ -88,7 +88,16 @@ Provide your answers in the code block below. (Look at the "Lending_Club_Session
 
 
 # Produce a scatter plot of loan amount against interest rate and add visually the line of best fit
-scatterplot_loan_
+scatterplot_loan_interest <- ggplot(lc_clean, aes(x = loan_amnt, y = int_rate) ) +
+  geom_point() +
+  geom_smooth() +
+  labs(
+    title = 'Higher loan amount is associated with higher interest rate',
+    subtitle = 'Relationship between loan amount and interest rate'
+  ) +
+  theme_bw()
+
+scatterplot_loan_interest
 
 
 # Produce a scatter plot of annual income against interest rate and add visually the line of best fit 
