@@ -125,9 +125,19 @@ scatterplot_loan_interest
 
 
 # In the same axes, produce box plots of the interest rate for every value of delinquencies
+ggplot(lc_clean) +
+  aes(x = delinq_2yrs, y = int_rate) +
+  geom_boxplot(outlier.colour="black", outlier.shape=16,
+             outlier.size=2, notch=FALSE) +
+  labs(title="Plot of interest rate for delinquencies", 
+       x="Delinquencies", 
+       y= "Interest Rate",
+       caption = 'Source: Lending Club (2022)') +
+  theme_bw()
 
 
 # Add 2 visualizations of your own
+
 
 ```
 
