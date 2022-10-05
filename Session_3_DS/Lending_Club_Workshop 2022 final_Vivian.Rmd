@@ -92,8 +92,10 @@ scatterplot_loan_interest <- ggplot(lc_clean, aes(x = loan_amnt, y = int_rate) )
   geom_point() +
   geom_smooth() +
   labs(
-    title = 'Higher loan amount is associated with higher interest rate',
-    subtitle = 'Relationship between loan amount and interest rate'
+    title = '10k+ loan amounts is associated with higher interest rate',
+    subtitle = 'Relationship between loan amount and interest rate',
+    x = 'Loan Amount',
+    y = 'Interest Rate'
   ) +
   theme_bw()
 
