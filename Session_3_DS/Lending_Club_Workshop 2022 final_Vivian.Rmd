@@ -163,13 +163,21 @@ a. Are all variables statistically significant?
 
 b. If your answer to part 'a' is affirmative, then discuss whether model 0 should be preferred over model 1. Otherwise, discuss how a variable that was statistically significant in model 0 is not significant anymore; or how the new variable is not statistically significant.
 
-> Loan amount and annual income are related, 
+> Loan amount and annual income are positively correlated, as people with a higher income are more likely to have a higher loan. Adding loan amount, we see that loan amount has a higher explanatory power than annual income. Interest rates are more related to the value of the loan than the income of the person applying. This is logical as well, as a higher income could mean a lower risk and therefore a lower interest, so loan amount is the better variable in this case. 
 
 c. How do you interpret the coefficients of the *(i)* "term60" dummy variable; *(ii)* "gradeF" dummy variable; and *(iii)* "loan_amnt" variable?
+
+> i) Extending the term to 60 months instead of 36 increases the interest rate by 3.608e-03. This is likely due to the increased risk and inflation associated with having a longer debt on your books. 
+ii) Clients with a risk profile equivalent to grade F are expected have an interest rate higher than grade A by 1.195e-01 percentage points, which is higher than all grades before. This indicates that these clients have a higher probability of default compared to grade A, which results in a higher interest rate being charged.
+iii) For every dollar that the loan amount increases, the interest rate increases by 1.475e-07 percentage point. This means that if the loan amount increases by a million, the interest rate goes up by 0.1475 percentage points. 
+
 d. How much explanatory power does the model have? 
+
+> The model explains 91.97% of the variability interest rates for the Lending Club dataset.
+
 e. Approximately, how wide would the 95% confidence interval of any prediction based on this model be? 
 
->Answer here:
+> The confidence interval would be 2 times the residual standard error on each side of the prediction, which is approximately the prediction +/- 0.02112.
 
 # Feature Engineering
 
