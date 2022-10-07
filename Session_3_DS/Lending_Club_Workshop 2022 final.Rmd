@@ -253,7 +253,33 @@ We can also do out of sample testing using the method of k-fold cross validation
 
 control <- trainControl (
     method="cv",
-    number=10,
+    number=5,
+    verboseIter=TRUE) #by setting this to true the model will report its progress after each estimation
+
+#we are going to train the model and report the results using k-fold cross validation
+
+plsFit<-train(
+    int_rate ~ loan_amnt + term+ dti + annual_inc + grade +grade:loan_amnt ,
+    lc_clean,
+   method = "lm",
+    trControl = control
+   )
+  
+
+summary(plsFit)
+
+
+
+# 15-fold cross validation
+
+We can also do out of sample testing using the method of k-fold cross validation which has several advantages over the traditional hold-out method. Using the `caret` package this is easy.
+
+{r, k-fold cross validation, eval = F}
+#the method "cv" stands for cross validation. We re going to create 10 folds.  
+
+control <- trainControl (
+    method="cv",
+    number=15,
     verboseIter=TRUE) #by setting this to true the model will report its progress after each estimation
 
 #we are going to train the model and report the results using k-fold cross validation

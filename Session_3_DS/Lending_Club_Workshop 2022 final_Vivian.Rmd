@@ -158,10 +158,12 @@ summary(model1)
 # **Q3.** Answer the following questions on model 1. {-}
 
 a. Are all variables statistically significant?
-> No
+
+> No, the annual income variable is not significant as the p-value is over 0.05. All others are below 0.05.
 
 b. If your answer to part 'a' is affirmative, then discuss whether model 0 should be preferred over model 1. Otherwise, discuss how a variable that was statistically significant in model 0 is not significant anymore; or how the new variable is not statistically significant.
-> Loan amount explains the variance in interest rate better than annual income, and they  
+
+> Loan amount and annual income are related, 
 
 c. How do you interpret the coefficients of the *(i)* "term60" dummy variable; *(ii)* "gradeF" dummy variable; and *(iii)* "loan_amnt" variable?
 d. How much explanatory power does the model have? 
@@ -239,12 +241,12 @@ rmse_testing
 
 We can also do out of sample testing using the method of k-fold cross validation which has several advantages over the traditional hold-out method. Using the `caret` package this is easy.
 
-```{r, k-fold cross validation, eval = F}
+{r, k-fold cross validation, eval = F}
 #the method "cv" stands for cross validation. We re going to create 10 folds.  
 
 control <- trainControl (
     method="cv",
-    number=10,
+    number=5,
     verboseIter=TRUE) #by setting this to true the model will report its progress after each estimation
 
 #we are going to train the model and report the results using k-fold cross validation
@@ -259,6 +261,31 @@ plsFit<-train(
 
 summary(plsFit)
 
+
+
+# 15-fold cross validation
+
+We can also do out of sample testing using the method of k-fold cross validation which has several advantages over the traditional hold-out method. Using the `caret` package this is easy.
+
+```{r, k-fold cross validation, eval = F}
+#the method "cv" stands for cross validation. We re going to create 10 folds.  
+
+control <- trainControl (
+    method="cv",
+    number=15,
+    verboseIter=TRUE) #by setting this to true the model will report its progress after each estimation
+
+#we are going to train the model and report the results using k-fold cross validation
+
+plsFit<-train(
+    int_rate ~ loan_amnt + term+ dti + annual_inc + grade +grade:loan_amnt ,
+    lc_clean,
+   method = "lm",
+    trControl = control
+   )
+  
+
+summary(plsFit)
 ```
 
 # **Q6.** Compare the out-of-sample RMSE of 10-fold cross validation and the hold-out method. Are they different? Which do you think is more reliable? Are there any drawbacks to the k-fold cross validation method compared to the hold-out method? Determine the out-of-sample RMSE based on 5-fold or 15-fold cross validation.  What you can infer from the outputs about the robusness of your model? {-} 
