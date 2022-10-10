@@ -1,7 +1,7 @@
 ---
 title: "Data Science I, Workshop I: Predicting interest rates at the Lending Club"
 author: "12"
-date: "30/09/2022"
+date: "10/10/2022"
 output:
   html_document:
     theme: journal
@@ -34,29 +34,25 @@ library(zoo) #to allow for timeseries operations
 library(formatR)
 ```
 
-This workshop partially replicates the analysis presented in class (lectures 1 and 2) and builds on it. You are to work in your study group. Feel free to refer to the `Lending_Club_Session1_and_2.html` if you get stuck.
 
-The workshop consists of 13 questions. Submit one report (one file) per study group. 
+# Determining interest rates
 
-*Please write your answer below each question and submit a knitted RMD markup file as the HTML file via Canvas, within 6 days after the end of this workshop. Please note that there is a 20% penalty on your Workshop Report 1 grade if you submit an RMD file.*
+The Lending Club provides loans to various parties. To aid the Lending Club in their operations, we are developing an algorithm that will predict the interest rate to be assigned to the loan. We take a dataset with previous lenders from 2007 and the end of 2011. 
 
-Please keep your answers concise -- focus on answering what you are asked and use your data science work to justify your answers. Do not focus on the process you have followed to reach the answer. Note that some chunks in the RMD code specifies `eval = F` to prevent errors as this file is incomplete. Make sure to remove this option from the completed chunks.
 
-# Load and prepare the data
-
-We start by loading the data to R in a dataframe.
 ```{r, load_data, warning=FALSE, message=FALSE}
 
 lc_raw <- read_csv("LendingClub Data.csv",  skip=1) %>%  #since the first row is a title we want to skip it. 
   clean_names() # use janitor::clean_names()
 ```
 
-# ICE the data: Inspect, Clean, Explore
+## ICE the data: Inspect, Clean, Explore
 
 Any data science engagement starts with ICE. Inspect, Clean and Explore the data. For this workshop we have cleaned the data for you. 
 
 
 ```{r}
+library(skimr)
 glimpse(lc_raw[, 1:10]) 
 
 
@@ -72,11 +68,13 @@ lc_clean<- lc_raw %>%
 
 
 glimpse(lc_clean[, 1:10]) 
+
+skim(lc_clean)
 ```
 
 The data is now in a clean format stored in the dataframe "lc_clean." 
 
-# **Q1.** Explore the data by building some visualizations as suggested below. Please add at least *two* visualizations of your own.{-}
+## **Q1.** Explore the data by building some visualizations as suggested below. Please add at least *two* visualizations of your own.{-}
 
 Provide your answers in the code block below. (Look at the "Lending_Club_Session1_and_2.html" for some hints on how to do this using ggplot.)
 
@@ -580,7 +578,7 @@ Instead, perhaps it is better to find the reasons as to why different periods ar
 
 ```{r, bond yields, eval = F}
 #load the data to memory as a dataframe
-bond_prices<-readr::read_csv("MonthBondYields.csv")
+bond_prices<-readr::read_csv("MonthBondYields .csv")
 
 #make the date of the bond file comparable to the lending club dataset
 #for some regional date/number (locale) settings this may not work. If it does try running the following line of code in the Console
@@ -695,19 +693,25 @@ lc_clean %>%
          
     
 ```
+```{r}
+set.seed(42)
+train_test_split <- initial_split(lc_clean_2, prop = 0.01)
+training <- training(train_test_split)
+testing <- testing(train_test_split)
+```
 
 ```{r}
 glimpse(lc_clean_2)
 
 q12_OLS <- train(
- int_rate ~ quartiles_annual_inc  + term  + dti + grade*loan_amnt + verification_2levels + installment_2stages + grades_comb,
+ int_rate ~ quartiles_annual_inc  + term  + dti + grades_comb*loan_amnt + verification_2levels + installment_2stages,
  data = lc_clean_2,
  method = 'lm',
   trControl = control10,
   )
 
 q12_lasso <- train(
- int_rate ~ quartiles_annual_inc  + term  + dti + grade*loan_amnt + verification_2levels + installment_2stages + grades_comb,
+ int_rate ~ quartiles_annual_inc  + term  + dti + grades_comb*loan_amnt + verification_2levels + installment_2stages + grades_comb,
  data = lc_clean_2,
  method = "glmnet",
   preProc = c("center", "scale"), #This option standardizes the data before running the LASSO regression
@@ -716,7 +720,7 @@ q12_lasso <- train(
   )
 
 q12_ridge <- train(
- int_rate ~ quartiles_annual_inc  + term  + dti + grade*loan_amnt + verification_2levels + installment_2stages + grades_comb,
+ int_rate ~ quartiles_annual_inc  + term  + dti + grades_comb*loan_amnt + verification_2levels + installment_2stages,
  data = lc_clean_2,
  method = "glmnet",
   preProc = c("center", "scale"), #This option standardizes the data before running the LASSO regression
@@ -724,13 +728,34 @@ q12_ridge <- train(
   tuneGrid = expand.grid(alpha = 0, lambda = lambda_seq) #alpha=1 specifies to run a LASSO regression.
   )
 
-data.frame(
-  q12_OLS$results$RMSE,
-  q12_lasso$results$RMSE,
-  q12_ridge$results$RMSE
-)
 ```
 
+```{r}
+# Make predictions
+predictions <- predict(q12_lasso,testing)
+
+# Model prediction performance
+
+data.frame(
+  RMSE = RMSE(predictions, testing$int_rate),
+  Rsquare = R2(predictions, testing$int_rate)
+)
+
+predictions <- predict(q12_ridge,testing)
+
+# Model prediction performance
+
+data.frame(
+  RMSE = RMSE(predictions, testing$int_rate),
+  Rsquare = R2(predictions, testing$int_rate)
+)
+
+
+q12_OLS$results$RMSE
+
+summary(q12_OLS)
+
+```
 
 
 >Answer here:
