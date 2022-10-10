@@ -266,6 +266,8 @@ plsFit<-train(
    method = "lm",
     trControl = control
    )
+
+summary(plsFit)
   
 ```
 
@@ -291,6 +293,9 @@ plsFit<-train(
    )
 
 summary(plsFit)
+plsFit$results
+plsFit$resample$RMSE
+mean(plsFit$resample$RMSE)
 ```
 
 # 15-fold cross validation
@@ -313,6 +318,11 @@ plsFit<-train(
    method = "lm",
     trControl = control
    )
+
+summary(plsFit)
+plsFit$results
+plsFit$resample$RMSE
+mean(plsFit$resample$RMSE)
   
 ```
 
@@ -320,7 +330,7 @@ plsFit<-train(
 
 # **Q6.** Compare the out-of-sample RMSE of 10-fold cross validation and the hold-out method. Are they different? Which do you think is more reliable? Are there any drawbacks to the k-fold cross validation method compared to the hold-out method? Determine the out-of-sample RMSE based on 5-fold or 15-fold cross validation.  What you can infer from the outputs about the robusness of your model? {-} 
 
-> The 
+> 10-fold 0.0105192. Hold-out method 0.01060701. 
 
 # Sample size estimation and learning curves
 
@@ -435,10 +445,10 @@ data.frame(
 ```
 
 # **Q8.** Answer the following questions {-}
-a. Which model performs best out of sample, OLS regression or LASSO? Why?
-b. What value of lambda offers best performance? Is this sensitive to the random seed? Why?
-c. How many coefficients are zero and how many are non-zero in the LASSO model of best fit? Is number of zero (or non-zero) coefficients sensitive on the random seed? Why?
-d. Why is it important to standardize continuous variables before running LASSO? 
+a) Having compared the out-of-sample performance of the OLS regression vs. the LASSO regression, we notice that the latter performs significantly better. This is because the small simple size (1% of the dataset) does not allow us to train OLS regressions properly and results in a poor model. On the other hand, LASSO performs better because it can single out significant coefficients (even on small samples).
+b) The value of lambda that offers best performance is 0.0005105105. This value is sensitive to the random seed since it affects the sample set chosen for training, which results in different coefficient estimates, which have to be penalised differently to yield an optimal model, hence the variability in lambda.
+c) 24 coefficients are non-zero and 34 are equal to 0 (given seed 876). This number is again sensitive to the random seed chosen since different samples used for training result in different coefficient estimates - from one run to another, a coefficient may turn out to be significant or not. 
+d) In using penalised regressions, it is important to standardize all variables to ensure the penalisation is applied equally to all predictors in terms of unit variance.
 
 >Answer here: 
 
@@ -461,31 +471,59 @@ First, investigate graphically whether there are any time trends in the interest
 
 ```{r, time trends, eval = F}
 
+
 #linear time trend -- concentrate on the interest rate as a function of the time (add code below)
-lc_timetrend <- lc_clean %>%
-  mutate(timetrend = quarter(issue_d)) %>%
-  
-  ggplot(aes(x = timetred, y = int_rate))
+ lc_clean %>%
+  ggplot( aes(x = issue_d, y = int_rate)) +
+  geom_point() +
+  geom_smooth(method='lm') +
+  labs(
+    title = 'Investigation of time trend in interest rates',
+    x = 'Time',
+    y = 'Interest rate',
+    caption = 'Source: Lending Club (2022)'
+  ) +
+  theme_bw()
+
 
 #linear time trend by grade -- similar plot, however, group by grades (via different colors) (add code below)
+ lc_clean %>%
+  ggplot( aes(x = issue_d, y = int_rate, color = grade)) +
+  geom_point() +
+  geom_smooth(method='lm') +
+  labs(
+    title = 'Timetrend for interest rate, by rating',
+    x = 'Time',
+    y = 'Interest rate',
+    caption = 'Source: Lending Club (2022)'
+  ) +
+  theme_bw()
+
+time0<-train(
+  int_rate ~ term + annual_inc + dti + grade*loan_amnt,#fill your variables here "+ issue_d"
+  lc_clean,
+  method = "lm",
+  trControl = trainControl(method = 'cv', number = 10)
+)
+summary(time0)
 
 #Train models using OLS regression and k-fold cross-validation
 #The first model has some explanatory variables and a linear time trend
 
 time1<-train(
-  int_rate ~ ,#fill your variables here "+ issue_d"
+  int_rate ~ term + annual_inc + dti + grade*loan_amnt + issue_d,#fill your variables here "+ issue_d"
   lc_clean,
   method = "lm",
-  trControl = control)
-
+  trControl = trainControl(method = 'cv', number = 10)
+)
 summary(time1)
 
 #The second model has a different linear time trend for each grade class (hint. use interactions)
 time2<-train(
-    int_rate ~ , #fill your variables here 
+    int_rate ~ term + annual_inc + dti + grade*loan_amnt + grade:issue_d, #fill your variables here 
     lc_clean,
    method = "lm",
-    trControl = control
+    trControl = trainControl(method = 'cv', number = 10)
    )
 summary(time2)
 
@@ -495,23 +533,24 @@ lc_clean_quarter<-lc_clean %>%
   mutate(yq = as.factor(as.yearqtr(lc_clean$issue_d, format = "%Y-%m-%d")))
 
 time3<-train(
-    int_rate ~ ,#fill your variables here 
+    int_rate ~ term + annual_inc + dti + grade*loan_amnt + yq,#fill your variables here 
     lc_clean_quarter,
      method = "lm",
-    trControl = control
+    trControl = trainControl(method = 'cv', number = 10)
    )
 summary(time3)
 
 #We specify one quarter dummy variable for each grade. This is going to be a large model as there are 19 quarters x 7 grades = 133 quarter-grade dummies.
 time4<-train(
-    int_rate ~  ,#fill your variables here 
+    int_rate ~  term + annual_inc + dti + grade*loan_amnt + grade:yq,#fill your variables here 
     lc_clean_quarter,
      method = "lm",
-    trControl = control
+    trControl = trainControl(method = 'cv', number = 10)
    )
 summary(time4)
 
 data.frame(
+  time0$results$RMSE,
   time1$results$RMSE,
   time2$results$RMSE,
   time3$results$RMSE,
@@ -520,7 +559,10 @@ data.frame(
 
 # **Q10.** Based on your analysis above, is there any evidence to suggest that interest rates change over time? Does including time trends / quarter-year dummies improve predictions? Any improvement in prediction performance? {-}
 
->Answer here:
+> According to the graphical exploratory analysis, the relationship between interest rate and time is not very pronounced. When taking grade into account however, the relationship is more pronounced for some grades and less existent for other grades. For grade G, the relationship is even negative while the others are positive. This indicates that the investors are becoming more risk-averse, as the interst rate for high-risk loans is getting higher as time progresses as their risk of default is higher. The interest rate of the lowest risk grade is decreasing, as this is a more attractive option for the lenders as the risk of default is lower, since these borrowers have a better credit record. By lowering the interest rate, we are lowering the cost of borrowing money, incentivizing the low-risk population to borrow more, increasing our opportunity for lending. 
+This would indicate that we need to take an interaction between grade and timetrend into account. We can see this in the RSME as well as the models with an interaction with grade have a lower RMSE than the same model without an interaction.
+Comparing to a model without a time variable, we see that even the only linear model (time1) decreases the RMSE by 1.916%. The best model, using quarterly dummies and a grade interaction, decreased the RMSE by 27.94% compared to the model without a time variable. The length of the confidence interval of any prediction for the best model (time4) is 2* 1.96 * RMSE = 0.02971, which is even smaller than the 0.04123 confidence interval length of the model that does not take time into account.
+
 
 # Using Bond Yields 
 One concern with using time trends for forecasting is that in order to make predictions for future loans we will need to project trends to the future. This is an extrapolation that may not be reasonable, especially if macroeconomic conditions in the future change. Furthermore, if we are using quarter-year dummies, it is not even possible to estimate the coefficient of these dummy variables for future quarters.
@@ -573,6 +615,8 @@ summary(plsFit)
 
 # **Q12.** Choose a model and describe your methodology {-}
 Feel free to investigate more models with different features using the methodologies covered so far. Present the model you believe predicts interest rates the best. Describe how good it is (including the length of the 95% Confidence Interval of predictions that use this model) and what features it uses. What methodology did you use to choose it? (Do not use time trends or quarter-year dummies in your model as the first cannot be extrapolated into the future reliably and the second cannot be even estimated for future quarters.)
+
+
 
 >Answer here:
 
