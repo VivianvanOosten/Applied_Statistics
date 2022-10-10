@@ -189,7 +189,6 @@ Below are some models with increasing complexity.
 ```{r, simple feature engineering}
 model1a<-lm(int_rate ~ loan_amnt + term +dti + annual_inc, data = lc_clean)
 summary(model1a)
-library(sjPlot)
 
 plot_model(model1a, type = "pred", terms = c("loan_amnt", "term"))
 
@@ -199,6 +198,8 @@ summary(model1b)
 plot_model(model1b, type = "pred", terms = c("loan_amnt", "term"))
 
 ```
+
+
 ```{r, feature engineering}
 #model with more variables
 model2<-lm(int_rate~ loan_amnt + term+ dti+ annual_inc + grade , data = lc_clean)
