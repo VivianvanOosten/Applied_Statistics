@@ -80,7 +80,7 @@ The data is now in a clean format stored in the dataframe "lc_clean."
 
 Provide your answers in the code block below. (Look at the "Lending_Club_Session1_and_2.html" for some hints on how to do this using ggplot.)
 
-```{r, data_visualisation, eval = F}
+```{r, data_visualisation }
 # Build a histogram of interest rates. Make sure it looks nice!
 
 
@@ -129,7 +129,7 @@ lc_clean %>%
 
 We start with a simple but quite powerful model. Use the `lm` command to estimate a regression model with the following variables "term",  "annual_inc", "dti", and "grade".
 
-```{r, simple regression, eval = F}
+```{r, simple regression }
 
 model0 <- lm(int_rate ~ term + annual_inc + dti + grade, data = lc_clean)
 summary(model0)
@@ -147,7 +147,7 @@ b. How much explanatory power does the model have?
 
 Fit a new linear regression that is identical to model 0, however, with the extra variable "loan_amnt".
 
-```{r, simple regression with extra variable, eval = F}
+```{r, simple regression with extra variable }
 
 model1 <-lm( int_rate ~ term + annual_inc + dti + grade + loan_amnt, data = lc_clean
   )
@@ -183,7 +183,7 @@ e. Approximately, how wide would the 95% confidence interval of any prediction b
 
 Let's build progressively more complex models, with more features.
 
-```{r, Feature Engineering, eval = F}
+```{r, Feature Engineering }
 #Add to model 1 an interaction between loan amount and grade. Use the "var1*var2" notation to define an interaction term in the linear regression model. This will add the interaction and the individual variables to the model. 
 
 model2 <- lm( int_rate ~ term + annual_inc + dti + grade*loan_amnt, data = lc_clean)
@@ -217,7 +217,7 @@ c. The problem of multicollinearity describes the situations where one feature i
 # Out of sample testing
 Let's check the predictive accuracy of model2 by holding out a subset of the data to use as a testing data set. This method is sometimes referred to as the hold-out method for out-of-sample testing. The code below is incomplete -- complete in light of the comments.
 
-```{r, out of sample testing, eval = F}
+```{r, out of sample testing }
 # split the data in dataframe called "testing" and another one called  "training". The "training" dataframe should have 80% of the data and the "testing" dataframe 20%.
 set.seed(23)
 train_test_split <- initial_split(lc_clean, prop = 0.80
@@ -250,13 +250,21 @@ rmse_testing
 
 We can also do out of sample testing using the method of k-fold cross validation which has several advantages over the traditional hold-out method. Using the `caret` package this is easy.
 
-```{r, k-fold cross validation, eval = F}
+```{r, k-fold cross validation }
 #the method "cv" stands for cross validation. We re going to create 10 folds.  
 
-control <- trainControl (
+control5 <- trainControl (
     method="cv",
     number=5,
-    verboseIter=TRUE) #by setting this to true the model will report its progress after each estimation
+    verboseIter=FALSE) #by setting this to true the model will report its progress after each estimation
+control10 <- trainControl (
+    method="cv",
+    number=10,
+    verboseIter=FALSE) #by setting this to true the model will report its progress after each estimation
+control15 <- trainControl (
+    method="cv",
+    number=15,
+    verboseIter=FALSE) #by setting this to true the model will report its progress after each estimation
 
 #we are going to train the model and report the results using k-fold cross validation
 
@@ -264,7 +272,7 @@ plsFit<-train(
     int_rate ~ loan_amnt + term+ dti + annual_inc + grade +grade:loan_amnt ,
     lc_clean,
    method = "lm",
-    trControl = control
+    trControl = control5
    )
 
 summary(plsFit)
@@ -275,7 +283,7 @@ summary(plsFit)
 
 We can also do out of sample testing using the method of k-fold cross validation which has several advantages over the traditional hold-out method. Using the `caret` package this is easy.
 
-```{r, k-fold cross validation, eval = F}
+```{r, k-fold cross validation }
 #the method "cv" stands for cross validation. We re going to create 10 folds.  
 
 control <- trainControl (
@@ -302,7 +310,7 @@ mean(plsFit$resample$RMSE)
 
 We can also do out of sample testing using the method of k-fold cross validation which has several advantages over the traditional hold-out method. Using the `caret` package this is easy.
 
-```{r, k-fold cross validation, eval = F}
+```{r, k-fold cross validation}
 #the method "cv" stands for cross validation. We re going to create 10 folds.  
 
 control <- trainControl (
@@ -336,7 +344,7 @@ mean(plsFit$resample$RMSE)
 
 We can use the hold out method for out-of-sample testing to check if we have a sufficiently large sample to estimate the model reliably. The idea is to set aside some of the data as a testing set. From the remaining data draw progressively larger training sets and check how the performance of the model on the testing set changes. If the performance no longer improves with larger training sets we know we have a large enough sample.  The code below does this. Examine it and run it with different random seeds. 
 
-```{r, learning curves, eval = F}
+```{r, learning curves}
 # select a testing dataset (25% of all data)
 set.seed(12)
 
@@ -382,7 +390,7 @@ If we are in the region of the learning curve where we do not have enough data, 
 
 Let's try to estimate a large and complicated model (many interactions and polynomials) on a small training dataset using OLS regression and hold-out validation method.
 
-```{r, OLS model overfitting, eval = F}
+```{r, OLS model overfitting}
 
 #split the data in testing and training. The training test is really small.
 
@@ -406,7 +414,7 @@ Not surprisingly this model does not perform well -- as we knew form the learnin
 
 LASSO regression offers one solution -- it extends the OLS regression by penalizing the model for setting any coefficient estimate to a value that is different from zero. The penalty is proportional to a parameter $\lambda$ (pronounced lambda). This parameter cannot be estimated directly (and for this reason sometimes it is referred to as hyperparameter). $\lambda$  will be selected through k-fold cross validation so as to provide the best out-of-sample performance.  As a result of the LASSO procedure, only those features that are more strongly associated with the outcome will have non-zero coefficient estimates and the estimated model will be less sensitive to the training set. Sometimes LASSO regression is referred to as regularization. 
 1
-```{r, LASSO compared to OLS, warning=FALSE, message=FALSE, eval = F}
+```{r, LASSO compared to OLS, warning=FALSE, message=FALSE}
 # we will look for the optimal lambda in this sequence (we will try 1000 different lambdas, feel free to try more if necessary)
 lambda_seq <- seq(0, 0.01, length = 1000)
 
@@ -469,7 +477,7 @@ Let's try to further improve the model's predictive performance. So far we have 
  
 First, investigate graphically whether there are any time trends in the interest rates. (Note that the variable "issue_d" only has information on the month the loan was awarded but not the exact date.) Can you use this information to further improve the forecasting accuracy of your model? Try controlling for time in a linear fashion (i.e., a linear time trend) and controlling for time as quarter-year dummies (this is a method to capture non-linear effects of time -- we assume that the impact of time doesn't change within a quarter but it can chance from quarter to quarter). Finally, check if time affect loans of different grades differently.
 
-```{r, time trends, eval = F}
+```{r, time trends}
 
 
 #linear time trend -- concentrate on the interest rate as a function of the time (add code below)
@@ -615,6 +623,113 @@ summary(plsFit)
 
 # **Q12.** Choose a model and describe your methodology {-}
 Feel free to investigate more models with different features using the methodologies covered so far. Present the model you believe predicts interest rates the best. Describe how good it is (including the length of the 95% Confidence Interval of predictions that use this model) and what features it uses. What methodology did you use to choose it? (Do not use time trends or quarter-year dummies in your model as the first cannot be extrapolated into the future reliably and the second cannot be even estimated for future quarters.)
+
+> We followed an EDA (Explore, Diagnose, Analyse) process to understand the lc_clean dataset, and extracted variables that we believe could provide insight on our response variable.
+We analysed the following variables to understand if they could provide insight on the interest rate per loans in addition to the variables that we have already selected: verification_status, instalment, employment length
+We mutated the data to create categories within the dataset, and then performed t-tests to understand if there were true differences in the mean.
+We concluded that instalment categories and verification status categories had significant differences in means, and we have decided to include it in the model.
+Employment length did not have an impact on the interest rate.
+We have included a variable for verification, with 2 levels - verified or not verified. Based on a t-test, the level of interest rates for these two levels is significantly different. 
+
+```{r}
+
+glimpse(lc_clean)
+
+```
+
+
+```{r}
+list(
+  emp_length = unique(lc_clean$emp_length),
+  home_ownership = unique(lc_clean$home_ownership),
+  verification_status = unique(lc_clean$verification_status),
+  loan_status = unique(lc_clean$loan_status),
+  purpose = unique(lc_clean$purpose)
+)
+
+lc_clean %>%
+  ggplot(aes(x=verification_status, y = int_rate)) +
+  geom_boxplot() +
+  theme_bw()
+
+lc_clean_2 <- lc_clean %>%
+  mutate(verification_2levels = ifelse(verification_status == 'Not Verified', 0, 1),
+         installment_2stages = as.factor(ntile(installment, 2)),
+         grades_comb = case_when (
+           grade == 'F' ~ 'F+',
+           grade == 'G' ~ 'F+',
+           TRUE ~ grade),
+         quartiles_annual_inc = as.factor(ntile(annual_inc, 4))
+         )
+
+#unique(lc_clean_2$grades_comb)
+
+t.test(int_rate ~ verification_2levels, lc_clean_2)
+t.test(int_rate ~ installment_2stages, lc_clean_2)
+
+```
+
+
+
+
+
+
+```{r}
+lc_clean %>%
+  select(int_rate, installment, purpose, verification_status, home_ownership) %>%
+  ggpairs()
+
+```
+
+```{r}
+lc_clean %>%
+  mutate(installment_2stages = as.factor(ntile(installment, 2))) %>%
+  ggplot(aes(x = installment_2stages, y = int_rate)) +
+  geom_boxplot() 
+```
+
+```{r}
+lc_clean %>%
+  ggplot(aes(x=emp_length, y=int_rate)) +
+  geom_boxplot()
+         
+    
+```
+
+```{r}
+glimpse(lc_clean_2)
+
+q12_OLS <- train(
+ int_rate ~ quartiles_annual_inc  + term  + dti + grade*loan_amnt + verification_2levels + installment_2stages + grades_comb,
+ data = lc_clean_2,
+ method = 'lm',
+  trControl = control10,
+  )
+
+q12_lasso <- train(
+ int_rate ~ quartiles_annual_inc  + term  + dti + grade*loan_amnt + verification_2levels + installment_2stages + grades_comb,
+ data = lc_clean_2,
+ method = "glmnet",
+  preProc = c("center", "scale"), #This option standardizes the data before running the LASSO regression
+  trControl = control10,
+  tuneGrid = expand.grid(alpha = 1, lambda = lambda_seq) #alpha=1 specifies to run a LASSO regression.
+  )
+
+q12_ridge <- train(
+ int_rate ~ quartiles_annual_inc  + term  + dti + grade*loan_amnt + verification_2levels + installment_2stages + grades_comb,
+ data = lc_clean_2,
+ method = "glmnet",
+  preProc = c("center", "scale"), #This option standardizes the data before running the LASSO regression
+  trControl = control10,
+  tuneGrid = expand.grid(alpha = 0, lambda = lambda_seq) #alpha=1 specifies to run a LASSO regression.
+  )
+
+data.frame(
+  q12_OLS$results$RMSE,
+  q12_lasso$results$RMSE,
+  q12_ridge$results$RMSE
+)
+```
 
 
 
